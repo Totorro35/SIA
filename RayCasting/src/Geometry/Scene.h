@@ -436,8 +436,12 @@ namespace Geometry
 						result = result + material->getSpecular()*sendRay(reflexion, depth + 1, maxDepth, diffuseSamples, specularSamples);
 					}
 
-					result = result + phong_indirect(ray, intersection, depth + 1, maxDepth, diffuseSamples, specularSamples);
-					
+					double rouletteRusse = Math::RandomDirection::random();
+					if (rouletteRusse > 0.9) {
+						result = result + phong_indirect(ray, intersection, depth + 1, maxDepth, diffuseSamples, specularSamples)*(1/(1-0.9));
+					}
+
+
 					if (brouill) {
 						double d = intersection.tRayValue();
 						double f = 0.;

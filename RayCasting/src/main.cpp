@@ -566,7 +566,7 @@ void initTibetHouseInside(Geometry::Scene & scene)
 		(*it)->setSpecular(RGBColor());
 		if ((*it)->getTextureFile() == m_modelDirectory + "\\TibetHouse" + "\\3D69C2DE.png")
 		{
-			(*it)->setEmissive(RGBColor(1.0, 1.0, 1.0)*500.0);
+			(*it)->setEmissive(RGBColor(1.0, 1.0, 1.0)*50.0);
 		}
 	}
 
@@ -580,12 +580,12 @@ void initTibetHouseInside(Geometry::Scene & scene)
 	// 2.2 Adds point lights in the scene 
 	Geometry::BoundingBox sb = scene.getBoundingBox();
 	Math::Vector3f position = sb.max();
-	Geometry::PointLight light1(position, RGBColor(1.0, 1.0, 1.0)*500.0);
+	Geometry::PointLight light1(position, RGBColor(1.0, 1.0, 1.0)*50.0);
 	scene.add(light1);
 	position[1] = -position[1];
-	Geometry::PointLight light2(position, RGBColor(1.0, 1.0, 1.0) * 200);
+	Geometry::PointLight light2(position, RGBColor(1.0, 1.0, 1.0) * 20);
 	scene.add(light2);
-	Geometry::PointLight light3(Math::makeVector(5.f, 35.f, 5.f), RGBColor(1.0, 1.0, 1.0) * 10);
+	Geometry::PointLight light3(Math::makeVector(5.f, 35.f, 5.f), RGBColor(1.0, 1.0, 1.0) * 1);
 	scene.add(light3);
 	{
 		Geometry::Camera camera(Math::makeVector(20.f, 0.f, 5.0f), Math::makeVector(5.f, 35.f, 5.f), 0.3f, 1.0f, 1.0f);
@@ -778,10 +778,10 @@ int main(int argc, char ** argv)
 	//initTemple(scene);
 	//initRobot(scene);
 	//initGraveStone(scene);
-	initBoat(scene);
+	//initBoat(scene);
 	//initSombrero(scene);
 	//initTibetHouse(scene);
-	//initTibetHouseInside(scene);
+	initTibetHouseInside(scene);
 	//initMedievalCity(scene);
 	//initDragon(scene);
 
