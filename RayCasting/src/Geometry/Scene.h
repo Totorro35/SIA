@@ -405,7 +405,6 @@ namespace Geometry
 					Math::Vector3f reflected = Triangle::reflectionDirection(normal, ray.direction());
 					Ray reflexion(intersection.intersection()+reflected*0.001, reflected);
 
-
 					Material* material = intersection.triangle()->material();
 
 					result = phong_direct(ray, intersection,depth);
@@ -434,11 +433,11 @@ namespace Geometry
 					}
 					else {
 						RGBColor background = brouillard;
-						/*if (skybox->isValid()) {
+						if (skybox->isValid()) {
 							int u = (ray.direction().normalized()[1]+1)*skybox->getSize()[0];
 							int v = (ray.direction().normalized()[2] + 1)*skybox->getSize()[1];
-							background = skybox->pixel(u, v)/10;
-						}*/
+							background = (skybox->pixel(u, v)/10)*3.0+brouillard*0.8;
+						}
 						result = background;
 					}
 					
