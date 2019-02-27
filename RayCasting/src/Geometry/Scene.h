@@ -372,6 +372,28 @@ namespace Geometry
 			return result ;
 		}
 
+		RGBColor phong_indirect(Ray const & ray, RayTriangleIntersection const & intersection,int depth,int maxDepth,int diffuseSamples,int specularSamples) {
+			RGBColor result;
+
+			Math::Vector3f normal = intersection.triangle()->sampleNormal(intersection.uTriangleValue(), intersection.vTriangleValue(), ray.source()).normalized();
+			Math::Vector3f reflected = Triangle::reflectionDirection(normal, ray.direction()).normalized();
+
+			//Modifier le 3 avec shininess;
+			Math::Vector3f indirect = Math::RandomDirection(reflected, 3).generate().normalized();
+			Ray rayIndirect(intersection.intersection() + indirect * 0.001, indirect);
+
+			RGBColor texture = intersection.triangle()->sampleTexture(intersection.uTriangleValue(), intersection.vTriangleValue());
+
+			RGBColor brdf = intersection.triangle()->material()->getDiffuse()*texture;
+			float cos = normal * reflected;
+			result = result + sendRay(rayIndirect, depth + 1, maxDepth, diffuseSamples, specularSamples)*brdf*cos;
+
+			
+			//result = result + sendRay(rayIndirect, depth + 1, maxDepth, diffuseSamples, specularSamples)*intersection.triangle()->material()->getDiffuse()*texture;
+
+			return result;
+		}
+
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// \fn	RGBColor Scene::sendRay(Ray const & ray, double limit, int depth, int maxDepth)
 		///
@@ -394,7 +416,6 @@ namespace Geometry
 			double df = 30.;
 			bool brouill = false;
 
-
 			if(depth<=maxDepth){
 
 				//Calcul de l'intersection
@@ -414,6 +435,8 @@ namespace Geometry
 						//result = result + material->getSpecular()*sendRay(reflexion, depth + 1, maxDepth, diffuseSamples, specularSamples)/(intersection.tRayValue()+1);
 						result = result + material->getSpecular()*sendRay(reflexion, depth + 1, maxDepth, diffuseSamples, specularSamples);
 					}
+
+					result = result + phong_indirect(ray, intersection, depth + 1, maxDepth, diffuseSamples, specularSamples);
 					
 					if (brouill) {
 						double d = intersection.tRayValue();
