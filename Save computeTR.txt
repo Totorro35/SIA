@@ -1,0 +1,97 @@
+void computeTempsReel(int maxDepth)
+		{
+			// We prepare the light sampler (the sampler only stores triangles with a non null emissive component).
+			for (auto it = m_geometries.begin(), end = m_geometries.end(); it != end; ++it)
+			{
+				m_lightSampler.add(it->second);
+			}
+
+			//Calcul de la structure d'optimisation
+			accelerator.init(&m_geometries);
+
+			// Table accumulating values computed per pixel (enable rendering of each pass)
+			::std::vector<::std::vector<::std::pair<int, RGBColor> > > pixelTable(m_visu->width(), ::std::vector<::std::pair<int, RGBColor> >(m_visu->width(), ::std::make_pair(1, RGBColor())));
+
+			// 1 - Rendering time
+			LARGE_INTEGER frequency;        // ticks per second
+			LARGE_INTEGER t1, t2;           // ticks
+			double elapsedTime;
+			// get ticks per second
+			QueryPerformanceFrequency(&frequency);
+			// start timer
+
+			SDL_Event event;
+			bool done = false;
+			bool temps = false;
+
+			while (!done) {
+				if(temps)
+					QueryPerformanceCounter(&t1);
+
+				// Sends primary rays for each pixel (uncomment the pragma to parallelize rendering)
+#pragma omp parallel for schedule(dynamic)//, 10)//guided)//dynamic)
+				for (int y = 0; y < m_visu->height() / 2; y++)
+				{
+					for (int x = 0; x < m_visu->width() / 2; x++)
+					{
+#pragma omp critical (visu)
+						m_visu->plot(2 * x, 2 * y, RGBColor(1000.0, 0.0, 0.0));
+						// Ray casting
+						RGBColor result = sendRay(m_camera.getRay(((double)x * 2) / m_visu->width(), ((double)y * 2) / m_visu->height()), 0, maxDepth, m_diffuseSamples, m_specularSamples);
+						// Accumulation of ray casting result in the associated pixel
+						::std::pair<int, RGBColor> & currentPixel = pixelTable[2*x][2*y];
+						currentPixel.second = result;
+						// Pixel rendering (with simple tone mapping)
+#pragma omp critical (visu)
+						m_visu->plot(2 * x, 2 * y, result);
+						// Updates the rendering context (per pixel) - warning per pixel update can be costly...
+					}
+				}
+
+#pragma omp parallel for schedule(dynamic)
+				for (int y = 0; y < m_visu->height() / 2; y++)
+				{
+					for (int x = 0; x < m_visu->width() / 2; x++)
+					{
+						RGBColor result = pixelTable[2 * x][2 * y].second;
+						if (x+1 == (m_visu->width() / 2) || y+1 == (m_visu->height() / 2)) {
+#pragma omp critical (visu)
+							m_visu->plot(2 * x + 1, 2 * y, result);
+#pragma omp critical (visu)
+							m_visu->plot(2 * x, 2 * y + 1, result);
+#pragma omp critical (visu)
+							m_visu->plot(2 * x + 1, 2 * y + 1, result);
+						}
+						else {
+							RGBColor resultX = (result + pixelTable[2*(x+1)][2 * y].second)/2;
+							RGBColor resultY = (result + pixelTable[2 * x][2*(y+1)].second)/2;
+							RGBColor resultXY = (resultX + resultY) / 2;
+#pragma omp critical (visu)
+							m_visu->plot(2 * x + 1, 2 * y, resultX);
+#pragma omp critical (visu)
+							m_visu->plot(2 * x, 2 * y + 1, resultY);
+#pragma omp critical (visu)
+							m_visu->plot(2 * x + 1, 2 * y + 1, resultXY);
+						}
+					}
+				}
+
+				// Updates the rendering context (per pass)
+				m_visu->update();
+				// We print time for each pass
+				if (temps) {
+					QueryPerformanceCounter(&t2);
+					elapsedTime = (double)(t2.QuadPart - t1.QuadPart) / (double)frequency.QuadPart;
+					::std::cout << "time: " << elapsedTime << "s. " << ::std::endl;
+					
+				}
+				mouvement();
+
+				if (SDL_PollEvent(&event)) {
+					if (event.type == SDL_QUIT) {
+						done = true;
+					}
+
+				}
+			}
+		}
