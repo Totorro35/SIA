@@ -72,6 +72,8 @@ namespace Geometry
 
 		double vitesse;
 		Texture* skybox;
+
+		RGBColor sumPuissance;
 		
 
 	public:
@@ -290,21 +292,31 @@ namespace Geometry
 
 			//result = result + material->getAmbient()*texture/(intersection.tRayValue()+1);//Ajout de l'ambient
 
-			bool allLight = true;
-
 			std::vector< PointLight> lights;
-			if (allLight) {
-				for (LightSampler& sampler : m_lightSamplers) {
-					lights.push_back(sampler.generate());
-				}
-				for (PointLight & light0 : m_lights) {
-					lights.push_back(samplingSphere(light0));
-				}
+			double score = 0;
+			for (LightSampler& sampler : m_lightSamplers) {
+					PointLight lght = sampler.generate();
+					score += lght.getScore();
+					lights.push_back(lght);
 			}
-			else {
-				//lights.push_back(generateOneLight(m_samplerlightsampler));
+			for (PointLight & light0 : m_lights) {
+					PointLight lght = samplingSphere(light0);
+					score += lght.getScore();
+					lights.push_back(lght);
 			}
 
+			/*
+			double random = Math::RandomDirection::random(0, score);
+			double mem_score=0.0;
+			PointLight finalLight;
+			for (PointLight & light : lights) {
+				mem_score += light.getScore();
+				if (mem_score > random) {
+					finalLight = light;
+				}
+			}
+			lights.clear();
+			lights.push_back(finalLight);*/
 			
 			for (PointLight & light : lights) {
 
@@ -354,8 +366,6 @@ namespace Geometry
 					result = result + light.color() * texture * (diffuse + specular) * shadow;
 				}
 				*/
-				
-				
 				
 			}
 

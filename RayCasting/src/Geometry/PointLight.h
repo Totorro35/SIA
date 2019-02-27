@@ -53,6 +53,10 @@ namespace Geometry
 		const RGBColor & color() const
 		{ return m_color ; }
 
+		double getScore() const {
+			return 1.0;
+		}
+
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// \fn	const Math::Vector3 & PointLight::position() const
 		///
