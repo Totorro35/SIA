@@ -552,7 +552,7 @@ namespace Geometry
 			::std::cout<<"time: "<<elapsedTime<<"s. "<<::std::endl ;
 
 
-			std::ofstream fichier("RaytracingCPU.ppm", std::ios::out | std::ios::trunc);  // on ouvre le fichier en lecture
+			std::ofstream fichier("..\\..\\Resultat\\IlluminationGlobale\\RaytracingCPU.ppm", std::ios::out | std::ios::trunc);  // on ouvre le fichier en lecture
 
 			// Output FB as Image
 
@@ -581,7 +581,7 @@ namespace Geometry
 				std::cerr << "Impossible d'ouvrir le fichier !" << std::endl;
 			}
 
-			std::cout << "FINIT !!!" << std::endl;
+			std::cout << "Enregistrement terminé" << std::endl;
 		}
 
 
