@@ -811,7 +811,8 @@ int main(int argc, char ** argv)
 	*	computeTempsReel :	affichage et gestion du déplacement 3D avec interpolation linéaire de l'affichage 
 	*						selon un coeficient (second paramètre)
 	*/
-	scene.compute(maxBounce, subPixelSampling, passPerPixel) ;
+	//scene.compute(maxBounce, subPixelSampling, passPerPixel) ;
+	scene.compute(maxBounce, subPixelSampling, 1);
 	//scene.computeTempsReel(maxBounce,2.);
 
 	// 5 - waits until a key is pressed

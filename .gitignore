@@ -1,5 +1,6 @@
 # GITIGNORE
 
+Resultat/IlluminationGlobale/RaytracingCPU.ppm
 dependencies_ima
 dependencies_sources
 ModelPerso
