@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <iostream>
 #include <Geometry/Texture.h>
+#include <fstream>
 
 namespace Geometry
 {
@@ -539,6 +540,38 @@ namespace Geometry
 			QueryPerformanceCounter(&t2);
 			elapsedTime = (double)(t2.QuadPart - t1.QuadPart) / (double)frequency.QuadPart;
 			::std::cout<<"time: "<<elapsedTime<<"s. "<<::std::endl ;
+
+
+			std::ofstream fichier("RaytracingCPU.ppm", std::ios::out | std::ios::trunc);  // on ouvre le fichier en lecture
+
+			// Output FB as Image
+
+
+
+
+			if (fichier)  // si l'ouverture a réussi
+			{
+				fichier << "P3\n" << m_visu->height() << " " << m_visu->width() << "\n255\n";
+				for (int y = 0; y < m_visu->height(); y++) {
+					for (int x = 0; x < m_visu->width(); x++) {
+						//size_t pixel_index = y * m_visu->height() + x;
+						//size_t pixel_index = 0;
+						float r = 10 * pixelTable[x][y].second[0] / (double)(pixelTable[x][y].first);
+						float g = 10 * pixelTable[x][y].second[1] / (double)(pixelTable[x][y].first);
+						float b = 10 * pixelTable[x][y].second[2] / (double)(pixelTable[x][y].first);
+						int ir = int(255 * (r / (r + 1)));
+						int ig = int(255 * (g / (g + 1)));
+						int ib = int(255 * (b / (b + 1)));
+						fichier << ir << " " << ig << " " << ib << "\n";
+					}
+				}
+				fichier.close();  // on ferme le fichier
+			}
+			else {  // sinon
+				std::cerr << "Impossible d'ouvrir le fichier !" << std::endl;
+			}
+
+			std::cout << "FINIT !!!" << std::endl;
 		}
 
 
