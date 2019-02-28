@@ -2,6 +2,7 @@
 #define _Geometry_Light_H
 
 #include <Geometry/Material.h>
+#include <Math/Constant.h>
 
 namespace Geometry
 {
@@ -56,7 +57,7 @@ namespace Geometry
 		{ return m_color ; }
 
 		void computeScore() {
-			m_score = m_color.grey();
+			m_score = m_color.grey()*4*Math::pi*m_radius*m_radius;
 		}
 
 		double getScore() const {

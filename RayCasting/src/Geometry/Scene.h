@@ -294,10 +294,9 @@ namespace Geometry
 
 			std::vector< PointLight> lights;
 
-			double random = Math::RandomDirection::random();
-			double mem_score = 0.0;
+			bool allLight = true;
 
-			if (true) {
+			if (allLight) {
 				for (LightSampler& sampler : m_lightSamplers) {
 					lights.push_back(sampler.generate());
 				}
@@ -306,6 +305,8 @@ namespace Geometry
 				}
 			}
 			else {
+				double random = Math::RandomDirection::random();
+				double mem_score = 0.0;
 				for (LightSampler& sampler : m_lightSamplers) {
 					mem_score += sampler.getScore() / m_scoreLight;
 					if (mem_score > random) {

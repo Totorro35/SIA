@@ -32,7 +32,7 @@ namespace Geometry
 		{}
 
 		void computeScore() {
-			m_score = allTriangles[0].material()->getEmissive().grey();
+			m_score = allTriangles[0].material()->getEmissive().grey()*currentSum;
 		}
 
 		double getScore() {
