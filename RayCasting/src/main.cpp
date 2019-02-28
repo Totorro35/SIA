@@ -790,7 +790,8 @@ int main(int argc, char ** argv)
 
 	// 3 - Computes the scene
 	unsigned int passPerPixel = 64/8;	// Number of rays per pixel 
-	unsigned int subPixelSampling = 4;	// Antialiasing
+	//unsigned int subPixelSampling = 4;
+	unsigned int subPixelSampling = 1;	// Antialiasing
 	//unsigned int maxBounce = 10;
 	unsigned int maxBounce = 5;			// Maximum number of bounces
 
@@ -812,7 +813,7 @@ int main(int argc, char ** argv)
 	*						selon un coeficient (second paramètre)
 	*/
 	//scene.compute(maxBounce, subPixelSampling, passPerPixel) ;
-	scene.compute(maxBounce, subPixelSampling, 20);
+	scene.compute(maxBounce, subPixelSampling, 1);
 	//scene.computeTempsReel(maxBounce,2.);
 
 	// 5 - waits until a key is pressed

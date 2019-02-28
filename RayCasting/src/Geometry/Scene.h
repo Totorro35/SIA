@@ -70,6 +70,10 @@ namespace Geometry
 		//Oct_Tree accelerator; //Non implémenté
 		//BVH accelerator;
 
+		//Tableau Image
+		::std::vector<::std::vector<::std::pair<int, RGBColor> > > pixelTable;
+
+
 		double vitesse;
 		Texture* skybox;
 
@@ -481,6 +485,41 @@ namespace Geometry
 			return result;
 		}
 
+		void save(::std::vector<::std::vector<::std::pair<int, RGBColor> > >& pixelTable, std::string nomFichier = "..\\..\\Resultat\\IlluminationGlobale\\RaytracingCPU.ppm")
+		{
+			std::ofstream fichier(nomFichier, std::ios::out | std::ios::trunc);  // on ouvre le fichier en lecture
+
+			// Output FB as Image
+
+
+
+
+			if (fichier)  // si l'ouverture a réussi
+			{
+				std::cout << "Debut de l'enregistrement" << std::endl;
+				fichier << "P3\n" << m_visu->height() << " " << m_visu->width() << "\n255\n";
+				for (int y = 0; y < m_visu->height(); y++) {
+					for (int x = 0; x < m_visu->width(); x++) {
+						//size_t pixel_index = y * m_visu->height() + x;
+						//size_t pixel_index = 0;
+						float r = 10 * pixelTable[x][y].second[0] / (double)(pixelTable[x][y].first);
+						float g = 10 * pixelTable[x][y].second[1] / (double)(pixelTable[x][y].first);
+						float b = 10 * pixelTable[x][y].second[2] / (double)(pixelTable[x][y].first);
+						int ir = int(255 * (r / (r + 1)));
+						int ig = int(255 * (g / (g + 1)));
+						int ib = int(255 * (b / (b + 1)));
+						fichier << ir << " " << ig << " " << ib << "\n";
+					}
+				}
+				fichier.close();  // on ferme le fichier
+			}
+			else {  // sinon
+				std::cerr << "Impossible d'ouvrir le fichier !" << std::endl;
+			}
+
+			std::cout << "Enregistrement termine" << std::endl;
+		}
+
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// \fn	void Scene::compute(int maxDepth)
 		///
@@ -524,7 +563,7 @@ namespace Geometry
 			// Step on x and y for subpixel sampling
 			double step = 1.0f/subPixelDivision ;
 			// Table accumulating values computed per pixel (enable rendering of each pass)
-			::std::vector<::std::vector<::std::pair<int, RGBColor> > > pixelTable(m_visu->width(), ::std::vector<::std::pair<int, RGBColor> >(m_visu->width(), ::std::make_pair(0, RGBColor()))) ;
+			pixelTable = ::std::vector<::std::vector<::std::pair<int, RGBColor> > >(m_visu->width(), ::std::vector<::std::pair<int, RGBColor> >(m_visu->width(), ::std::make_pair(0, RGBColor()))) ;
 
 			// 1 - Rendering time
 			LARGE_INTEGER frequency;        // ticks per second
@@ -586,37 +625,14 @@ namespace Geometry
 			::std::cout<<"time: "<<elapsedTime<<"s. "<<::std::endl ;
 
 
-			std::ofstream fichier("..\\..\\Resultat\\IlluminationGlobale\\RaytracingCPU.ppm", std::ios::out | std::ios::trunc);  // on ouvre le fichier en lecture
+			save(pixelTable, "..\\..\\Resultat\\IlluminationGlobale\\RaytracingCPU.ppm");
 
-			// Output FB as Image
-
-
-
-
-			if (fichier)  // si l'ouverture a réussi
-			{
-				fichier << "P3\n" << m_visu->height() << " " << m_visu->width() << "\n255\n";
-				for (int y = 0; y < m_visu->height(); y++) {
-					for (int x = 0; x < m_visu->width(); x++) {
-						//size_t pixel_index = y * m_visu->height() + x;
-						//size_t pixel_index = 0;
-						float r = 10 * pixelTable[x][y].second[0] / (double)(pixelTable[x][y].first);
-						float g = 10 * pixelTable[x][y].second[1] / (double)(pixelTable[x][y].first);
-						float b = 10 * pixelTable[x][y].second[2] / (double)(pixelTable[x][y].first);
-						int ir = int(255 * (r / (r + 1)));
-						int ig = int(255 * (g / (g + 1)));
-						int ib = int(255 * (b / (b + 1)));
-						fichier << ir << " " << ig << " " << ib << "\n";
-					}
-				}
-				fichier.close();  // on ferme le fichier
-			}
-			else {  // sinon
-				std::cerr << "Impossible d'ouvrir le fichier !" << std::endl;
-			}
-
-			std::cout << "Enregistrement terminé" << std::endl;
 		}
+
+
+
+
+		
 
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -763,7 +779,7 @@ namespace Geometry
 			int h = (int)(m_visu->width() / factor);
 			int w = (int)(m_visu->height() / factor);
 
-			::std::vector<::std::vector<RGBColor>> pixelTable(h, ::std::vector<RGBColor>(w));
+			pixelTable = ::std::vector<::std::vector<RGBColor>>(h, ::std::vector<RGBColor>(w));
 
 			SDL_Event event;
 			bool done = false;
