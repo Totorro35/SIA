@@ -24,6 +24,8 @@ namespace Geometry
 
 		float m_radius;
 
+		double m_score;
+
 	public:
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// \fn	PointLight::PointLight(Math::Vector3 const & position, RGBColor const & color)
@@ -53,8 +55,12 @@ namespace Geometry
 		const RGBColor & color() const
 		{ return m_color ; }
 
+		void computeScore() {
+			m_score = m_color.grey();
+		}
+
 		double getScore() const {
-			return 1.0;
+			return m_score;
 		}
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////

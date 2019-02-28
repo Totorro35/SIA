@@ -21,6 +21,8 @@ namespace Geometry
 		::std::vector<Triangle> allTriangles;
 		double currentSum ;
 
+		double m_score;
+
 	public:
 		/// <summary>
 		/// Constructor
@@ -28,6 +30,14 @@ namespace Geometry
 		LightSampler()
 			: currentSum(0.0)
 		{}
+
+		void computeScore() {
+			m_score = allTriangles[0].material()->getEmissive().grey();
+		}
+
+		double getScore() {
+			return m_score;
+		}
 
 		/// <summary>
 		/// Adds a triangle to the light sampler.
