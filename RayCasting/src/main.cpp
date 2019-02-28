@@ -99,7 +99,7 @@ void createSurfaceLigth(Geometry::Scene & scene, double value)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void initDiffuseSIA(Geometry::Scene & scene)
 {
-	Geometry::Material * cubeEmissif = new Geometry::Material(RGBColor(), RGBColor(1, 0.0, 0.0), RGBColor(0.0, 0.0, 0.0), 20.0f, RGBColor(0.8,0.8,0.0));
+	Geometry::Material * cubeEmissif = new Geometry::Material(RGBColor(), RGBColor(1, 0.0, 0.0), RGBColor(0.0, 0.0, 0.0), 20.0f, RGBColor(0.08,0.08,0.0));
 	Geometry::Material * material2 = new Geometry::Material(RGBColor(), RGBColor(1.0, 1.0, 1.0), RGBColor(0, 0, 0), 1000, RGBColor());
 	Geometry::Material * cubeMat = new Geometry::Material(RGBColor(), RGBColor(1, 0.0, 0.0), RGBColor(0.0, 0.0, 0.0), 20.0f, RGBColor());
 	//Geometry::Material * cubeMat = new Geometry::Material(RGBColor(), RGBColor(1.0f,0.0,0.0), RGBColor(0.0,0.0,0.0), 20.0f, RGBColor(10.0,0,0)) ;
@@ -121,7 +121,7 @@ void initDiffuseSIA(Geometry::Scene & scene)
 	// 2.2 Adds point lights in the scene 
 	{
 		Geometry::PointLight pointLight(Math::makeVector(0.0f, 0.f, 2.0f), RGBColor(0.5f, 0.5f, 0.5f));
-		scene.add(pointLight);
+		//scene.add(pointLight);
 	}
 	{
 		Geometry::PointLight pointLight2(Math::makeVector(4.f, 0.f, 0.f), RGBColor(0.5f, 0.5f, 0.5f));
@@ -494,10 +494,10 @@ void initBoat(Geometry::Scene & scene)
 	// 2.2 Adds point lights in the scene 
 	Geometry::BoundingBox sb = scene.getBoundingBox();
 	Math::Vector3f position = sb.max();
-	Geometry::PointLight light1(position, RGBColor(1.0, 1.0, 1.0)*6000.0);
+	Geometry::PointLight light1(position, RGBColor(1.0, 1.0, 1.0)*600.0);
 	scene.add(light1);
 	position[1] = -position[1];
-	Geometry::PointLight light2(position, RGBColor(1.0, 1.0, 1.0) * 20000);
+	Geometry::PointLight light2(position, RGBColor(1.0, 1.0, 1.0) * 2000);
 	scene.add(light2);
 	{
 		Geometry::Camera camera(Math::makeVector(5000.f, 5000.f, 200.0f), Math::makeVector(0.f, 0.f, 60.f), 0.3f, 1.0f, 1.0f);
@@ -812,7 +812,7 @@ int main(int argc, char ** argv)
 	*						selon un coeficient (second paramètre)
 	*/
 	//scene.compute(maxBounce, subPixelSampling, passPerPixel) ;
-	scene.compute(maxBounce, subPixelSampling, 1);
+	scene.compute(maxBounce, subPixelSampling, 20);
 	//scene.computeTempsReel(maxBounce,2.);
 
 	// 5 - waits until a key is pressed

@@ -288,7 +288,7 @@ namespace Geometry
 			RGBColor texture = tri->sampleTexture(intersection.uTriangleValue(), intersection.vTriangleValue());
 						
 			//Ajout de la couleur d'Emission
-			result = material->getEmissive() * texture;
+			result = material->getEmissive() * texture/(intersection.tRayValue()+1);
 
 			//result = result + material->getAmbient()*texture/(intersection.tRayValue()+1);//Ajout de l'ambient
 
@@ -459,11 +459,11 @@ namespace Geometry
 						result = brouillard;
 					}
 					else {
-						RGBColor background = brouillard;
+						RGBColor background = RGBColor();
 						if (skybox->isValid()) {
 							int u = (ray.direction().normalized()[1]+1)*skybox->getSize()[0];
 							int v = (ray.direction().normalized()[2] + 1)*skybox->getSize()[1];
-							background = (skybox->pixel(u, v)/10)*3.0+brouillard*0.8;
+							//background = (skybox->pixel(u, v)/10)*0.5+brouillard*0.8;
 						}
 						result = background;
 					}
