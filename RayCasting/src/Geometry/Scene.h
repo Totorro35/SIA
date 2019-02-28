@@ -73,7 +73,7 @@ namespace Geometry
 		double vitesse;
 		Texture* skybox;
 
-		RGBColor sumPuissance;
+		double m_scoreLight;
 		
 
 	public:
@@ -281,42 +281,48 @@ namespace Geometry
 			RGBColor result(0.0, 0.0, 0.0); //Couleur de retour
 			const Triangle* tri = intersection.triangle();
 			Material* material = tri->material(); //Materiau du triangle
-			Math::Vector3f normal = tri->sampleNormal(intersection.uTriangleValue(),intersection.vTriangleValue(),ray.source()); //Normal au triangle
+			Math::Vector3f normal = tri->sampleNormal(intersection.uTriangleValue(), intersection.vTriangleValue(), ray.source()); //Normal au triangle
 			Math::Vector3f intersect_point = intersection.intersection(); //Point d'intersection sur le triangle
 			Math::Vector3f viewer = (ray.source() - intersect_point).normalized(); //Direction de la source
-		
+
 			RGBColor texture = tri->sampleTexture(intersection.uTriangleValue(), intersection.vTriangleValue());
-						
+
 			//Ajout de la couleur d'Emission
-			result = material->getEmissive() * texture/(intersection.tRayValue()+1);
+			result = material->getEmissive() * texture / (intersection.tRayValue() + 1);
 
 			//result = result + material->getAmbient()*texture/(intersection.tRayValue()+1);//Ajout de l'ambient
 
 			std::vector< PointLight> lights;
-			double score = 0;
-			for (LightSampler& sampler : m_lightSamplers) {
-					PointLight lght = sampler.generate();
-					score += lght.getScore();
-					lights.push_back(lght);
-			}
-			for (PointLight & light0 : m_lights) {
-					PointLight lght = samplingSphere(light0);
-					score += lght.getScore();
-					lights.push_back(lght);
-			}
 
-			/*
-			double random = Math::RandomDirection::random(0, score);
-			double mem_score=0.0;
-			PointLight finalLight;
-			for (PointLight & light : lights) {
-				mem_score += light.getScore();
-				if (mem_score > random) {
-					finalLight = light;
+			double random = Math::RandomDirection::random();
+			double mem_score = 0.0;
+
+			if (true) {
+				for (LightSampler& sampler : m_lightSamplers) {
+					lights.push_back(sampler.generate());
+				}
+				for (PointLight & light0 : m_lights) {
+					lights.push_back(samplingSphere(light0));
 				}
 			}
-			lights.clear();
-			lights.push_back(finalLight);*/
+			else {
+				for (LightSampler& sampler : m_lightSamplers) {
+					mem_score += sampler.getScore() / m_scoreLight;
+					if (mem_score > random) {
+						lights.push_back(sampler.generate());
+						break;
+					}
+				}
+				if (lights.empty()) {
+					for (PointLight & light0 : m_lights) {
+						mem_score += light0.getScore() / m_scoreLight;
+						if (mem_score > random) {
+							lights.push_back(samplingSphere(light0));
+							break;
+						}
+					}
+				}
+			}
 			
 			for (PointLight & light : lights) {
 
@@ -500,15 +506,16 @@ namespace Geometry
 					m_lightSamplers.push_back(lightsampler);
 			}
 
-			std::cout << m_lightSamplers.size() << " lights" << std::endl;
+			std::cout << m_lightSamplers.size() + m_lights.size() << " lights" << std::endl;
 
-			/*
-			Ici git notre methode
-			// We prepare the light sampler (the sampler only stores triangles with a non null emissive component).
-			for (auto it = m_geometries.begin(), end = m_geometries.end(); it != end; ++it)
-			{
-				m_lightSampler.add(it->second);
-			}*/
+			for (LightSampler& sampler : m_lightSamplers) {
+				sampler.computeScore();
+				m_scoreLight += sampler.getScore();
+			}
+			for (PointLight & light0 : m_lights) {
+				light0.computeScore();
+				m_scoreLight += light0.getScore();
+			}
 
 			//Calcul de la structure d'optimisation
 			accelerator.init(&m_geometries);
