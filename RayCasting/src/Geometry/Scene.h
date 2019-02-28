@@ -779,7 +779,7 @@ namespace Geometry
 			int h = (int)(m_visu->width() / factor);
 			int w = (int)(m_visu->height() / factor);
 
-			pixelTable = ::std::vector<::std::vector<RGBColor>>(h, ::std::vector<RGBColor>(w));
+			::std::vector<::std::vector<RGBColor>>pixelTable (h, ::std::vector<RGBColor>(w));
 
 			SDL_Event event;
 			bool done = false;
