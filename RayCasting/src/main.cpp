@@ -131,6 +131,8 @@ void initDiffuseSIA(Geometry::Scene & scene)
 		Geometry::Camera camera(Math::makeVector(-4.0f, 0.0f, 0.0f), Math::makeVector(0.0f, 0.0f, 0.0f), 0.3f, 1.0f, 1.0f);
 		scene.setCamera(camera);
 	}
+
+	scene.setName(scene.getName() + "DiffuseSIA");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -178,6 +180,7 @@ void initDiffuse(Geometry::Scene & scene)
 		Geometry::Camera camera(Math::makeVector(-4.0f, 0.0f, 0.0f), Math::makeVector(0.0f, 0.0f, 0.0f), 0.3f, 1.0f, 1.0f);
 		scene.setCamera(camera);
 	}
+	scene.setName(scene.getName() + "Diffuse");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -224,6 +227,7 @@ void initSpecular(Geometry::Scene & scene)
 		Geometry::Camera camera(Math::makeVector(-4.0f, 0.0f, 0.0f), Math::makeVector(0.0f, 0.0f, 0.0f), 0.3f, 1.0f, 1.0f);
 		scene.setCamera(camera);
 	}
+	scene.setName(scene.getName() + "Specular");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -274,6 +278,7 @@ void initDiffuseSpecular(Geometry::Scene & scene)
 		Geometry::Camera camera(Math::makeVector(-4.0f, 0.0f, 0.0f), Math::makeVector(0.0f, 0.0f, 0.0f), 0.3f, 1.0f, 1.0f);
 		scene.setCamera(camera);
 	}
+	scene.setName(scene.getName() + "DiffuseSpecular");
 }
 
 /// <summary>
@@ -302,6 +307,7 @@ void initGarage(Geometry::Scene & scene)
 		scene.setCamera(camera);
 	}
 	createGround(scene);
+	scene.setName(scene.getName() + "Garage");
 }
 
 /// <summary>
@@ -330,6 +336,7 @@ void initGuitar(Geometry::Scene & scene)
 		scene.setCamera(camera);
 	}
 	createGround(scene);
+	scene.setName(scene.getName() + "Guitare");
 }
 
 /// <summary>
@@ -359,6 +366,7 @@ void initDog(Geometry::Scene & scene)
 		scene.setCamera(camera);
 	}
 	createGround(scene);
+	scene.setName(scene.getName() + "Dog");
 }
 
 /// <summary>
@@ -395,6 +403,7 @@ void initTemple(Geometry::Scene & scene)
 	createGround(scene);
 	createSurfaceLigth(scene, 50);
 	//createSurfaceLigth(scene, 500);
+	scene.setName(scene.getName() + "Temple");
 }
 
 /// <summary>
@@ -427,6 +436,7 @@ void initRobot(Geometry::Scene & scene)
 		scene.setCamera(camera);
 	}
 	createGround(scene);
+	scene.setName(scene.getName() + "Robot");
 }
 
 /// <summary>
@@ -467,6 +477,7 @@ void initGraveStone(Geometry::Scene & scene)
 	}
 	createGround(scene);
 	//createSurfaceLigth(scene, 400);
+	scene.setName(scene.getName() + "GraveStone");
 }
 
 /// <summary>
@@ -505,6 +516,7 @@ void initBoat(Geometry::Scene & scene)
 		scene.setCamera(camera);
 	}
 	createGround(scene);
+	scene.setName(scene.getName() + "Boat");
 }
 
 /// <summary>
@@ -549,6 +561,7 @@ void initTibetHouse(Geometry::Scene & scene)
 		scene.setCamera(camera);
 	}
 	createGround(scene);
+	scene.setName(scene.getName() + "TibetHouse");
 }
 
 /// <summary>
@@ -593,6 +606,8 @@ void initTibetHouseInside(Geometry::Scene & scene)
 		scene.setCamera(camera);
 	}
 	createGround(scene);
+
+	scene.setName(scene.getName() + "TibetHouseInside");
 }
 
 /// <summary>
@@ -634,6 +649,7 @@ void initMedievalCity(Geometry::Scene & scene)
 		scene.setCamera(camera);
 	}
 	createGround(scene);
+	scene.setName(scene.getName() + "MedievalCity");
 }
 
 /// <summary>
@@ -675,6 +691,7 @@ void initDragon(Geometry::Scene & scene)
 		scene.setCamera(camera);
 	}
 	createGround(scene);
+	scene.setName(scene.getName() + "Dragon");
 }
 
 /// <summary>
@@ -712,6 +729,7 @@ void initSombrero(Geometry::Scene & scene)
 		scene.setCamera(camera);
 	}
 	createGround(scene);
+	scene.setName(scene.getName() + "Sombrero");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -817,7 +835,7 @@ int main(int argc, char ** argv)
 	//scene.computeTempsReel(maxBounce,2.);
 
 	// 5 - waits until a key is pressed
-	waitKeyPressed() ;
+	waitKeyPressed();
 
 	return 0 ;
 }

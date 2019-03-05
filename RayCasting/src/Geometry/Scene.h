@@ -59,6 +59,8 @@ namespace Geometry
 		size_t m_lightSamples;
 		/// brief Rendering pass number
 		int m_pass;
+
+		std::string m_name;
 		/// <summary>
 		/// The light sampler associated with the scene
 		/// </summary>
@@ -96,7 +98,7 @@ namespace Geometry
 		/// \param [in,out]	visu	If non-null, the visu.
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		Scene(Visualizer::Visualizer * visu)
-			: m_visu(visu), m_diffuseSamples(30), m_specularSamples(30), m_lightSamples(0),vitesse(2.)
+			: m_visu(visu), m_diffuseSamples(30), m_specularSamples(30), m_lightSamples(0),vitesse(2.),m_name("..\\..\\Resultat\\IlluminationGlobale\\")
 		{}
 
 		/// <summary>
@@ -211,6 +213,18 @@ namespace Geometry
 		void setCamera(Camera const & cam)
 		{
 			m_camera = cam ;
+		}
+
+
+
+		void setName(std::string name)
+		{
+			m_name = name;
+		}
+
+		std::string getName() const
+		{
+			return m_name;
 		}
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -581,10 +595,6 @@ namespace Geometry
 			bool done = false;
 			Math::Vector3f delta;
 
-			
-
-
-
 			//while (!done){
 				for(SDL_Event event : events){
 					switch (event.type) {
@@ -592,8 +602,7 @@ namespace Geometry
 						switch (event.key.keysym.sym) {
 
 						case SDLK_s:
-							save(pixelTable, "..\\..\\Resultat\\IlluminationGlobale\\RaytracingCPU.ppm");
-							std::cout << "save test" << std::endl;
+							save(pixelTable, m_name + std::to_string(m_pass)+".ppm");
 							done = true;
 							break;
 						}
@@ -603,8 +612,6 @@ namespace Geometry
 					}
 				}/*while*/
 			//}
-
-			
 		}
 
 
