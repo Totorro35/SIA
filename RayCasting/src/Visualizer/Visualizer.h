@@ -135,8 +135,9 @@ namespace Visualizer
 		/// \author	F. Lamarche, Université de Rennes 1
 		/// \date	03/12/2013
 		////////////////////////////////////////////////////////////////////////////////////////////////////
-		void update()
+		std::vector<SDL_Event> update()
 		{
+			std::vector<SDL_Event> events;
 			SDL_RenderPresent(m_renderer);
 			SDL_Event event;
 			while ( SDL_PollEvent(&event) ) {
@@ -152,14 +153,21 @@ namespace Visualizer
 							exit(0);
 						}
 					}
+					else {
+						events.push_back(event);
+					}
 					break;
+
 				case SDL_QUIT:
 					exit(0) ;
 					break;
 				default:
+					events.push_back(event);
 					break;
 				}
 			}/*while*/
+
+			return events;
 		}
 	} ;
 }
