@@ -389,11 +389,11 @@ void initTemple(Geometry::Scene & scene)
 	Geometry::BoundingBox sb = scene.getBoundingBox();
 	Math::Vector3f position = sb.max();
 	//Geometry::PointLight light1(position, RGBColor(1.0, 1.0, 1.0)*60.0);
-	Geometry::PointLight light1(position, RGBColor(1.0, 1.0, 1.0)*600.0);
+	Geometry::PointLight light1(position, RGBColor(1.0, 1.0, 1.0)*60.0);
 	scene.add(light1);
 	position[1] = -position[1];
 	//Geometry::PointLight light2(position, RGBColor(1.0, 1.0, 1.0)*30);
-	Geometry::PointLight light2(position, RGBColor(1.0, 1.0, 1.0) * 300);
+	Geometry::PointLight light2(position, RGBColor(1.0, 1.0, 1.0) * 30);
 	scene.add(light2);
 	{
 		Geometry::Camera camera(Math::makeVector(20.0f, -100.0f, 15.0f), Math::makeVector(-20.f, 0.f, -40.f), 0.3f, 1.0f, 1.0f);
@@ -778,9 +778,9 @@ int main(int argc, char ** argv)
 
 	// 1 - Initializes a window for rendering
 	//Visualizer::Visualizer visu(1000,1000) ;
-	//Visualizer::Visualizer visu(800, 800);
+	Visualizer::Visualizer visu(800, 800);
 	//Visualizer::Visualizer visu(500, 500);
-	Visualizer::Visualizer visu(300,300);
+	//Visualizer::Visualizer visu(300,300);
 	
 	// 2 - Initializes the scene
 	Geometry::Scene scene(&visu) ;
@@ -793,13 +793,13 @@ int main(int argc, char ** argv)
 	//initGuitar(scene);
 	//initDog(scene);
 	//initGarage(scene);
-	//initTemple(scene);
+	initTemple(scene);
 	//initRobot(scene);
 	//initGraveStone(scene);
 	//initBoat(scene);
 	//initSombrero(scene);
 	//initTibetHouse(scene);
-	initTibetHouseInside(scene);
+	//initTibetHouseInside(scene);
 	//initMedievalCity(scene);
 	//initDragon(scene);
 
