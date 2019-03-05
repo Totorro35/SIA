@@ -78,6 +78,9 @@ namespace Geometry
 		Texture* skybox;
 
 		double m_scoreLight;
+
+
+		double energieLastPass = std::numeric_limits<double>::max();
 		
 
 	public:
@@ -233,7 +236,7 @@ namespace Geometry
 		///
 		/// \brief	Renvoie la valeur de l'ombre
 		///
-		/// \author	S'tout mo vie
+		/// \author	S. Corentin, L. Thomas
 		/// \date	27/09/2018
 		///
 		/// \param	ray Le rayon lancé
@@ -272,7 +275,7 @@ namespace Geometry
 		///
 		/// \brief	Renvoie la couleur issu du calcul d'ombrage de phong
 		///
-		/// \author	S'tout mo vie
+		/// \author	S. Corentin, L. Thomas
 		/// \date	26/09/2018
 		///
 		/// \param	ray Le rayon lancé
@@ -383,6 +386,21 @@ namespace Geometry
 			return result ;
 		}
 
+
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// \fn	RGBColor Scene::phong_indirect(Ray const & ray, RayTriangleIntersection& intersection,int depth,int maxDepth,int diffuseSamples,int specularSamples)
+		///
+		/// \brief	Renvoie la couleur issu du calcul d'ombrage de phong
+		///
+		/// \author	S. Corentin, L. Thomas
+		/// \date	26/09/2018
+		///
+		/// \param	ray Le rayon lancé
+		/// \param	intersection Le triangle intersecté avec le rayon
+		///
+		/// \return	La couleur de la composante indirect de l'illumination
+		////////////////////////////////////////////////////////////////////////////////////////////////////
 		RGBColor phong_indirect(Ray const & ray, RayTriangleIntersection const & intersection,int depth,int maxDepth,int diffuseSamples,int specularSamples) {
 			RGBColor result;
 
@@ -410,7 +428,7 @@ namespace Geometry
 		///
 		/// \brief	Sends a ray in the scene and returns the computed color
 		///
-		/// \author	F. Lamarche, Université de Rennes 1
+		/// \author	F. Lamarche, S. Corentin, L. Thomas Université de Rennes 1
 		/// \date	04/12/2013
 		///
 		/// \param	ray			The ray.
@@ -422,7 +440,7 @@ namespace Geometry
 		RGBColor sendRay(Ray const & ray, int depth, int maxDepth, int diffuseSamples, int specularSamples)
 		{
 			RGBColor result(0.0, 0.0, 0.0);
-			RGBColor brouillard(0.1, 0.1, 0.1);
+			RGBColor brouillard(0.1, 0.1,0.1);
 			double di = 0.;
 			double df = 30.;
 			bool brouill = false;
@@ -448,8 +466,9 @@ namespace Geometry
 					}
 
 					double rouletteRusse = Math::RandomDirection::random();
-					if (rouletteRusse > 0.9) {
-						result = result + phong_indirect(ray, intersection, depth + 1, maxDepth, diffuseSamples, specularSamples)*(1/(1-0.9));
+					double alpha = 0.4;
+					if (rouletteRusse > alpha) {
+						result = result + phong_indirect(ray, intersection, depth, maxDepth, diffuseSamples, specularSamples)*(1/(1-alpha));
 					}
 
 
@@ -485,6 +504,9 @@ namespace Geometry
 			return result;
 		}
 
+
+
+
 		void save(::std::vector<::std::vector<::std::pair<int, RGBColor> > >& pixelTable, std::string nomFichier = "..\\..\\Resultat\\IlluminationGlobale\\RaytracingCPU.ppm")
 		{
 			std::ofstream fichier(nomFichier, std::ios::out | std::ios::trunc);  // on ouvre le fichier en lecture
@@ -519,6 +541,72 @@ namespace Geometry
 
 			std::cout << "Enregistrement termine" << std::endl;
 		}
+
+
+		double energie()
+		{
+			double result = 0.;
+			for (int y = 0; y < m_visu->height(); y++)
+			{
+				for (int x = 0; x < m_visu->width(); x++)
+				{
+					if (x > 0 && x < m_visu->width()-1 && y > 0 && y < m_visu->height()-1)
+					{
+						result = result + abs((pixelTable[x][y].second / (double)(pixelTable[x][y].first) * 10).grey() - (pixelTable[x - 1][y].second / (double)(pixelTable[x - 1][y].first)*10).grey());
+						result = result + abs((pixelTable[x][y].second / (double)(pixelTable[x][y].first) * 10).grey() - (pixelTable[x + 1][y].second / (double)(pixelTable[x + 1][y].first) * 10).grey());
+						result = result + abs((pixelTable[x][y].second / (double)(pixelTable[x][y].first) * 10).grey() - (pixelTable[x][y - 1].second / (double)(pixelTable[x][y - 1].first) * 10).grey());
+						result = result + abs((pixelTable[x][y].second / (double)(pixelTable[x][y].first) * 10).grey() - (pixelTable[x][y + 1].second / (double)(pixelTable[x][y + 1].first) * 10).grey());
+					}
+				}
+			}
+
+			std::cout << (energieLastPass - result) / result << std::endl;
+			return result;
+		}
+
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// \fn	void Scene::eventCompute()
+		///
+		/// \brief	gestion des events aux claviers pour déplacement dans la scène
+		/// 		
+		/// \author	S'tout mo vie
+		/// \date	11/11/2018
+		///
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+		void eventCompute(std::vector<SDL_Event> events)
+		{
+			
+			SDL_Event event;
+			bool done = false;
+			Math::Vector3f delta;
+
+			
+
+
+
+			//while (!done){
+				for(SDL_Event event : events){
+					switch (event.type) {
+					case SDL_KEYDOWN:
+						switch (event.key.keysym.sym) {
+
+						case SDLK_s:
+							save(pixelTable, "..\\..\\Resultat\\IlluminationGlobale\\RaytracingCPU.ppm");
+							std::cout << "save test" << std::endl;
+							done = true;
+							break;
+						}
+
+					default:
+						break;
+					}
+				}/*while*/
+			//}
+
+			
+		}
+
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// \fn	void Scene::compute(int maxDepth)
@@ -576,13 +664,20 @@ namespace Geometry
 			// Rendering pass number
 			m_pass = 0;
 
+			double energiePass = std::numeric_limits<double>::max()/(double)2;
+
 			// Rendering
-			for(int passPerPixelCounter = 0 ; passPerPixelCounter<passPerPixel ; ++passPerPixelCounter)
+			//for(int passPerPixelCounter = 0 ; passPerPixelCounter<passPerPixel ; ++passPerPixelCounter)
+			int passPerPixelCounter = 0;
 			{
-				for (double xp = -0.5; xp < 0.5; xp += step)
+				//for (double xp = -0.5; xp < 0.5; xp += step)
+				double xp = 0.;
 				{
-					for (double yp = -0.5; yp < 0.5; yp += step)
+					//for (double yp = -0.5; yp < 0.5; yp += step)
+					double yp = 0.;
+					while(((energieLastPass-energiePass)/energiePass)> 0.00005)
 					{
+						energieLastPass = energiePass;
 						::std::cout << "Pass: " << m_pass << "/" << passPerPixel * subPixelDivision * subPixelDivision << ::std::endl;
 						++m_pass;
 						// Sends primary rays for each pixel (uncomment the pragma to parallelize rendering)
@@ -610,12 +705,16 @@ namespace Geometry
 							//m_visu->update();
 						}
 						// Updates the rendering context (per pass)
-						m_visu->update();
+						std::vector<SDL_Event> events = m_visu->update();
+						eventCompute(events);
+						energiePass = energie();
 						// We print time for each pass
 						QueryPerformanceCounter(&t2);
 						elapsedTime = (double)(t2.QuadPart - t1.QuadPart) / (double)frequency.QuadPart;
 						double remainingTime = (elapsedTime / m_pass)*(passPerPixel * subPixelDivision * subPixelDivision - m_pass);
 						::std::cout << "time: " << elapsedTime << "s. " <<", remaining time: "<< remainingTime << "s. " <<", total time: "<< elapsedTime + remainingTime << ::std::endl;
+
+						
 					}
 				}
 			}
