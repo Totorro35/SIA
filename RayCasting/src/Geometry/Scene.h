@@ -427,7 +427,8 @@ namespace Geometry
 
 			RGBColor texture = intersection.triangle()->sampleTexture(intersection.uTriangleValue(), intersection.vTriangleValue());
 
-			RGBColor brdf = intersection.triangle()->material()->getDiffuse()*texture;
+			//RGBColor brdf = intersection.triangle()->material()->getDiffuse()*texture;
+			RGBColor brdf = intersection.triangle()->material()->getDiffuse()*texture * std::max(pow(normal * reflected,3) - pow(normal * reflected, 5), 0.);
 			float cos = normal * reflected;
 			result = result + sendRay(rayIndirect, depth + 1, maxDepth, diffuseSamples, specularSamples)*brdf*cos;
 
@@ -480,9 +481,9 @@ namespace Geometry
 					}
 
 					double rouletteRusse = Math::RandomDirection::random();
-					double alpha = 0.;
+					double alpha = 0.1;
 					if (rouletteRusse > alpha) {
-						result = result + phong_indirect(ray, intersection, depth, maxDepth, diffuseSamples, specularSamples)*(1/(1-alpha));
+						result = result + phong_indirect(ray, intersection, depth+1, maxDepth, diffuseSamples, specularSamples)*(1/(1-alpha));
 					}
 
 
@@ -684,7 +685,7 @@ namespace Geometry
 				{
 					//for (double yp = -0.5; yp < 0.5; yp += step)
 					double yp = 0.;
-					while((abs(energieLastPass-energiePass)/energiePass)> 0.02)
+					while((abs(energieLastPass-energiePass)/energiePass)> 0.001)
 					{
 						if (m_pass == nextCheck)
 						{

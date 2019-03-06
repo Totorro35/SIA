@@ -150,7 +150,7 @@ void initDiffuse(Geometry::Scene & scene)
 {
 	Geometry::Material * material = new Geometry::Material(RGBColor(), RGBColor(0,0,0.0), RGBColor(0.95f,0.95f,0.95f), 1, RGBColor()) ;
 	Geometry::Material * material2 = new Geometry::Material(RGBColor(), RGBColor(1.0,1.0,1.0), RGBColor(0,0,0), 1000, RGBColor()) ;
-	Geometry::Material * cubeMat = new Geometry::Material(RGBColor(), RGBColor(1, 0.0, 0.0), RGBColor(0.0, 0.0, 0.0), 20.0f, RGBColor());
+	Geometry::Material * cubeMat = new Geometry::Material(RGBColor(), RGBColor(10, 0.0, 0.0), RGBColor(0.0, 0.0, 0.0), 20.0f, RGBColor());
 	//Geometry::Material * cubeMat = new Geometry::Material(RGBColor(), RGBColor(1.0f,0.0,0.0), RGBColor(0.0,0.0,0.0), 20.0f, RGBColor(10.0,0,0)) ;
 	Geometry::Cornel geo(material2, material2, material2, material2, material2, material2) ; 
 
@@ -778,22 +778,22 @@ int main(int argc, char ** argv)
 
 	// 1 - Initializes a window for rendering
 	//Visualizer::Visualizer visu(1000,1000) ;
-	Visualizer::Visualizer visu(800, 800);
-	//Visualizer::Visualizer visu(500, 500);
+	//Visualizer::Visualizer visu(800, 800);
+	Visualizer::Visualizer visu(500, 500);
 	//Visualizer::Visualizer visu(300,300);
 	
 	// 2 - Initializes the scene
 	Geometry::Scene scene(&visu) ;
 
 	// 2.1 initializes the geometry (choose only one initialization)
-	//initDiffuse(scene) ;
+	initDiffuse(scene) ;
 	//initDiffuseSIA(scene);
 	//initDiffuseSpecular(scene) ;
 	//initSpecular(scene) ;
 	//initGuitar(scene);
 	//initDog(scene);
 	//initGarage(scene);
-	initTemple(scene);
+	//initTemple(scene);
 	//initRobot(scene);
 	//initGraveStone(scene);
 	//initBoat(scene);
