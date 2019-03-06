@@ -427,7 +427,8 @@ namespace Geometry
 
 			RGBColor texture = intersection.triangle()->sampleTexture(intersection.uTriangleValue(), intersection.vTriangleValue());
 
-			RGBColor brdf = intersection.triangle()->material()->getDiffuse()*texture;
+			//RGBColor brdf = intersection.triangle()->material()->getDiffuse()*texture;
+			RGBColor brdf = intersection.triangle()->material()->getDiffuse()*texture * std::max(pow(normal * reflected,3) - pow(normal * reflected, 5), 0.);
 			float cos = normal * reflected;
 			result = result + sendRay(rayIndirect, depth + 1, maxDepth, diffuseSamples, specularSamples)*brdf*cos;
 
@@ -480,9 +481,9 @@ namespace Geometry
 					}
 
 					double rouletteRusse = Math::RandomDirection::random();
-					double alpha = 0.4;
+					double alpha = 0.1;
 					if (rouletteRusse > alpha) {
-						result = result + phong_indirect(ray, intersection, depth, maxDepth, diffuseSamples, specularSamples)*(1/(1-alpha));
+						result = result + phong_indirect(ray, intersection, depth+1, maxDepth, diffuseSamples, specularSamples)*(1/(1-alpha));
 					}
 
 
@@ -574,7 +575,7 @@ namespace Geometry
 				}
 			}
 
-			std::cout << (energieLastPass - result) / result << std::endl;
+			std::cout << 100*abs(energieLastPass - result) / result << std::endl;
 			return result;
 		}
 
@@ -671,6 +672,8 @@ namespace Geometry
 			// Rendering pass number
 			m_pass = 0;
 
+			int nextCheck = 10;
+
 			double energiePass = std::numeric_limits<double>::max()/(double)2;
 
 			// Rendering
@@ -682,9 +685,15 @@ namespace Geometry
 				{
 					//for (double yp = -0.5; yp < 0.5; yp += step)
 					double yp = 0.;
-					while(((energieLastPass-energiePass)/energiePass)> 0.00005)
+					while((abs(energieLastPass-energiePass)/energiePass)> 0.001)
 					{
-						energieLastPass = energiePass;
+						if (m_pass == nextCheck)
+						{
+							energieLastPass = energiePass;
+							energiePass = energie();
+							nextCheck = int(nextCheck * 1.2);
+						}
+						
 						::std::cout << "Pass: " << m_pass << "/" << passPerPixel * subPixelDivision * subPixelDivision << ::std::endl;
 						++m_pass;
 						// Sends primary rays for each pixel (uncomment the pragma to parallelize rendering)
@@ -714,7 +723,8 @@ namespace Geometry
 						// Updates the rendering context (per pass)
 						std::vector<SDL_Event> events = m_visu->update();
 						eventCompute(events);
-						energiePass = energie();
+						
+						
 						// We print time for each pass
 						QueryPerformanceCounter(&t2);
 						elapsedTime = (double)(t2.QuadPart - t1.QuadPart) / (double)frequency.QuadPart;
@@ -731,7 +741,7 @@ namespace Geometry
 			::std::cout<<"time: "<<elapsedTime<<"s. "<<::std::endl ;
 
 
-			save(pixelTable, "..\\..\\Resultat\\IlluminationGlobale\\RaytracingCPU.ppm");
+			save(pixelTable, m_name + std::to_string(m_pass) + ".ppm");
 
 		}
 
