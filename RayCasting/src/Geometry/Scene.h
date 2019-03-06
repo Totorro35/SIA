@@ -276,7 +276,7 @@ namespace Geometry
 		}
 
 		PointLight samplingSphere(PointLight& light0) {
-			double phi = cos(sqrt(Math::RandomDirection::random()));
+			double phi = acos(sqrt(Math::RandomDirection::random()));
 			double theta = 2*Math::pi*Math::RandomDirection::random();
 
 			Math::Vector3f translation = Math::RandomDirection::getVector(theta, phi)*light0.getRadius();
@@ -284,35 +284,7 @@ namespace Geometry
 			return PointLight(light0.position()+translation,light0.color());
 		}
 
-		////////////////////////////////////////////////////////////////////////////////////////////////////
-		/// \fn	RGBColor Scene::phong_direct(Ray const & ray, RayTriangleIntersection& intersection)
-		///
-		/// \brief	Renvoie la couleur issu du calcul d'ombrage de phong
-		///
-		/// \author	S. Corentin, L. Thomas
-		/// \date	26/09/2018
-		///
-		/// \param	ray Le rayon lancé
-		/// \param	intersection Le triangle intersecté avec le rayon
-		/// \return	La couleur de phong
-		////////////////////////////////////////////////////////////////////////////////////////////////////
-		RGBColor phong_direct(Ray const & ray, RayTriangleIntersection& intersection, int depth) {
-
-			//Initialisation des variables
-			RGBColor result(0.0, 0.0, 0.0); //Couleur de retour
-			const Triangle* tri = intersection.triangle();
-			Material* material = tri->material(); //Materiau du triangle
-			Math::Vector3f normal = tri->sampleNormal(intersection.uTriangleValue(), intersection.vTriangleValue(), ray.source()); //Normal au triangle
-			Math::Vector3f intersect_point = intersection.intersection(); //Point d'intersection sur le triangle
-			Math::Vector3f viewer = (ray.source() - intersect_point).normalized(); //Direction de la source
-
-			RGBColor texture = tri->sampleTexture(intersection.uTriangleValue(), intersection.vTriangleValue());
-
-			//Ajout de la couleur d'Emission
-			result = material->getEmissive() * texture / (intersection.tRayValue() + 1);
-
-			//result = result + material->getAmbient()*texture/(intersection.tRayValue()+1);//Ajout de l'ambient
-
+		std::vector<PointLight> lightSampling() {
 			std::vector< PointLight> lights;
 
 			bool allLight = true;
@@ -345,6 +317,34 @@ namespace Geometry
 					}
 				}
 			}
+
+			return lights;
+		}
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// \fn	RGBColor Scene::phong_direct(Ray const & ray, RayTriangleIntersection& intersection)
+		///
+		/// \brief	Renvoie la couleur issu du calcul d'ombrage de phong
+		///
+		/// \author	S. Corentin, L. Thomas
+		/// \date	26/09/2018
+		///
+		/// \param	ray Le rayon lancé
+		/// \param	intersection Le triangle intersecté avec le rayon
+		/// \return	La couleur de phong
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+		RGBColor phong_direct(Ray const & ray, RayTriangleIntersection& intersection, int depth) {
+
+			//Initialisation des variables
+			RGBColor result(0.0, 0.0, 0.0); //Couleur de retour
+
+			const Triangle* tri = intersection.triangle();
+			Material* material = tri->material(); //Materiau du triangle
+			Math::Vector3f normal = tri->sampleNormal(intersection.uTriangleValue(), intersection.vTriangleValue(), ray.source()); //Normal au triangle
+			Math::Vector3f intersect_point = intersection.intersection(); //Point d'intersection sur le triangle
+			Math::Vector3f viewer = (ray.source() - intersect_point).normalized(); //Direction de la source
+
+			std::vector<PointLight> lights = lightSampling();
 			
 			for (PointLight & light : lights) {
 
@@ -352,52 +352,33 @@ namespace Geometry
 				double shadow = ombrage(intersection,light);
 
 				//Direction de la light
-				Math::Vector3f light_dir = (light.position() - intersect_point).normalized();
-
-				//Composante diffuse
-				RGBColor diffuse = material->getDiffuse() * (normal*light_dir);
-
-				//Calcul de distance
 				double distance = (light.position() - intersect_point).norm();
-
-				//if(tri->normal(ray.source())*light_dir<0)
-				if (normal*light_dir<0) 
+				Math::Vector3f light_dir = (light.position() - intersect_point).normalized();
+				if (normal*light_dir < 0)
 				{
 					continue;
 				}
 
-				RGBColor specular(0.,0.,0.);
+				double G = (normal*light_dir) / (distance + 1);
 
-				if (!material->getSpecular().isBlack()) {
-					//Direction de l'angle reflechi
-					Math::Vector3f reflected = Triangle::reflectionDirection(normal, light_dir*(-1));
-					/*
-					if (reflected*viewer >= 0)
-					{
-						specular = material->getSpecular() * pow(reflected * viewer, material->getShininess());
-					}*/
-					
-					if (reflected*light_dir >= 0)
-					{
-						specular = material->getSpecular() * pow(reflected * light_dir, material->getShininess());
-					}
+				RGBColor texture = intersection.triangle()->sampleTexture(intersection.uTriangleValue(), intersection.vTriangleValue());
+				RGBColor brdf = material->getDiffuse()*texture;
 
-				}
+				//light.computeScore();
+				//double proba_light = light.getScore() / m_scoreLight;
 
-				result = result + light.color() * texture * (diffuse + specular) * shadow / (distance+1);
+				//Proba Light a revoir
+				double proba_light = 1.;
 
-				/*
-				if (depth == 0) {
-					result = result + light.color() * texture * (diffuse + specular) * shadow / (distance + 1);
-				}
-				else {
-					result = result + light.color() * texture * (diffuse + specular) * shadow;
-				}
-				*/
-				
+				result = result + light.color() * brdf * G * shadow / proba_light;				
 			}
 
-			return result ;
+			result = result / double(lights.size());
+
+			//Ajout de la couleur d'Emission
+			result = result + material->getEmissive() / (intersection.tRayValue() + 1);
+
+			return result;
 		}
 
 
@@ -416,24 +397,30 @@ namespace Geometry
 		/// \return	La couleur de la composante indirect de l'illumination
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		RGBColor phong_indirect(Ray const & ray, RayTriangleIntersection const & intersection,int depth,int maxDepth,int diffuseSamples,int specularSamples) {
-			RGBColor result;
-
-			Math::Vector3f normal = intersection.triangle()->sampleNormal(intersection.uTriangleValue(), intersection.vTriangleValue(), ray.source()).normalized();
-			Math::Vector3f reflected = Triangle::reflectionDirection(normal, ray.direction()).normalized();
-
-			//Modifier le 3 avec shininess;
-			Math::Vector3f indirect = Math::RandomDirection(reflected, 3).generate().normalized();
-			Ray rayIndirect(intersection.intersection() + indirect * 0.001, indirect);
-
-			RGBColor texture = intersection.triangle()->sampleTexture(intersection.uTriangleValue(), intersection.vTriangleValue());
-
-			//RGBColor brdf = intersection.triangle()->material()->getDiffuse()*texture;
-			RGBColor brdf = intersection.triangle()->material()->getDiffuse()*texture * std::max(pow(normal * reflected,3) - pow(normal * reflected, 5), 0.);
-			float cos = normal * reflected;
-			result = result + sendRay(rayIndirect, depth + 1, maxDepth, diffuseSamples, specularSamples)*brdf*cos;
-
 			
-			//result = result + sendRay(rayIndirect, depth + 1, maxDepth, diffuseSamples, specularSamples)*intersection.triangle()->material()->getDiffuse()*texture;
+			RGBColor result;
+			Material* material = intersection.triangle()->material();
+
+			double rouletteRusse = Math::RandomDirection::random();
+			double alpha = material->getAbsorption();
+			if (rouletteRusse > alpha) {
+
+				Math::Vector3f normal = intersection.triangle()->sampleNormal(intersection.uTriangleValue(), intersection.vTriangleValue(), ray.source()).normalized();
+				Math::Vector3f reflected = Triangle::reflectionDirection(normal, ray.direction()).normalized();
+
+				//Modifier le 3 avec shininess;
+				Math::Vector3f indirect = Math::RandomDirection(reflected, material->getShininess()).generate().normalized();
+				Ray rayIndirect(intersection.intersection() + indirect * 0.001, indirect);
+
+				RGBColor texture = intersection.triangle()->sampleTexture(intersection.uTriangleValue(), intersection.vTriangleValue());
+				RGBColor brdf = material->getDiffuse()*texture;
+
+				float cos = normal * reflected;
+
+				result = result + sendRay(rayIndirect, depth + 1, maxDepth, diffuseSamples, specularSamples)*brdf*cos;
+			}
+
+			result = result * (1 / (1 - alpha));
 
 			return result;
 		}
@@ -465,6 +452,7 @@ namespace Geometry
 				//Calcul de l'intersection
 				RayTriangleIntersection intersection;
 				if (accelerator.intersect(ray, intersection)) {
+
 					//Calcul des rayon reflechis
 					Math::Vector3f normal = intersection.triangle()->sampleNormal(intersection.uTriangleValue(), intersection.vTriangleValue(), ray.source());
 					Math::Vector3f reflected = Triangle::reflectionDirection(normal, ray.direction());
@@ -475,18 +463,11 @@ namespace Geometry
 					result = phong_direct(ray, intersection,depth);
 
 					if (!material->getSpecular().isBlack()) {
-						
-						//result = result + material->getSpecular()*sendRay(reflexion, depth + 1, maxDepth, diffuseSamples, specularSamples)/(intersection.tRayValue()+1);
 						result = result + material->getSpecular()*sendRay(reflexion, depth + 1, maxDepth, diffuseSamples, specularSamples);
 					}
 
-					double rouletteRusse = Math::RandomDirection::random();
-					double alpha = 0.1;
-					if (rouletteRusse > alpha) {
-						result = result + phong_indirect(ray, intersection, depth+1, maxDepth, diffuseSamples, specularSamples)*(1/(1-alpha));
-					}
-
-
+					result = result + phong_indirect(ray, intersection, depth + 1, maxDepth, diffuseSamples, specularSamples);
+			
 					if (brouill) {
 						double d = intersection.tRayValue();
 						double f = 0.;
@@ -508,14 +489,13 @@ namespace Geometry
 						if (skybox->isValid()) {
 							int u = (ray.direction().normalized()[1]+1)*skybox->getSize()[0];
 							int v = (ray.direction().normalized()[2] + 1)*skybox->getSize()[1];
-							//background = (skybox->pixel(u, v)/10)*0.5+brouillard*0.8;
+							background = (skybox->pixel(u, v)/10)*0.5+brouillard*0.8;
 						}
 						result = background;
 					}
 					
 				}
 			}
-			//::std::cout << "Geometry::Scene::sendRay: method implemented :)" << ::std::endl;
 			return result;
 		}
 
@@ -615,6 +595,13 @@ namespace Geometry
 			//}
 		}
 
+		void loadTexture(std::string s) {
+			if (skybox != nullptr) {
+				delete skybox;
+			}
+			skybox = new Texture(s);
+		}
+
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// \fn	void Scene::compute(int maxDepth)
@@ -632,6 +619,7 @@ namespace Geometry
 			//Chargement de la texture de Skybox
 			Texture text("..\\..\\Models\\Skybox\\Skybox1.png");
 			skybox=&text;
+			//loadTexture("..\\..\\Models\\Skybox\\Skybox1.png")
 
 			for (::std::pair<BoundingBox, Geometry>& geometry : m_geometries) {
 				LightSampler lightsampler;
