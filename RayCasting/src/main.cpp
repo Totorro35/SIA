@@ -786,9 +786,9 @@ int main(int argc, char ** argv)
 	Geometry::Scene scene(&visu) ;
 
 	// 2.1 initializes the geometry (choose only one initialization)
-	initDiffuse(scene) ;
+	//initDiffuse(scene) ;
 	//initDiffuseSIA(scene);
-	//initDiffuseSpecular(scene) ;
+	initDiffuseSpecular(scene) ;
 	//initSpecular(scene) ;
 	//initGuitar(scene);
 	//initDog(scene);

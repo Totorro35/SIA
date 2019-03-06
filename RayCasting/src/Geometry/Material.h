@@ -23,7 +23,10 @@ namespace Geometry
 		/// <summary> The filename of the itexture image</summary>
 		std::string m_textureFile;
 		/// <summary> The texture or nullptr if no texture is associated with this material</summary>
-		Texture * m_texture; 
+		Texture * m_texture;
+
+		//Coefficient d'absorption;
+		double m_alpha;
 
 	public:
 		/// <summary>
@@ -35,9 +38,9 @@ namespace Geometry
 		/// <param name="shininess">The shininess.</param>
 		/// <param name="emissiveColor">The emissive color.</param>
 		Material(RGBColor const & ambientColor = RGBColor(), RGBColor const & diffuseColor = RGBColor(),
-				 RGBColor specularColor = RGBColor(), double shininess = 1.0, RGBColor const & emissiveColor = RGBColor(), std::string const & textureFile = "")
+				 RGBColor specularColor = RGBColor(), double shininess = 1.0, RGBColor const & emissiveColor = RGBColor(), std::string const & textureFile = "", double alpha=0.9)
 				 : m_ambientColor(ambientColor), m_diffuseColor(diffuseColor), m_specularColor(specularColor),
-				   m_shininess(shininess), m_emissiveColor(emissiveColor), m_textureFile(textureFile), m_texture(NULL)
+				   m_shininess(shininess), m_emissiveColor(emissiveColor), m_textureFile(textureFile), m_texture(NULL), m_alpha(alpha)
 		{}
 
 		/// <summary>
@@ -167,6 +170,15 @@ namespace Geometry
 		{
 			return m_texture != NULL;
 		}
+
+		double getAbsorption() {
+			return m_alpha;
+		}
+
+		void setAbsorption(double alpha) {
+			m_alpha = alpha;
+		}
+
 	};
 }
 
