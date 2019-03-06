@@ -19,6 +19,8 @@
 #include <Geometry/Loader3ds.h>
 #include <Geometry/BoundingBox.h>
 #include <omp.h>
+#include <Math/Quaternion.h>
+
 
 /// <summary>
 /// The directory of the 3D objetcs
@@ -99,36 +101,51 @@ void createSurfaceLigth(Geometry::Scene & scene, double value)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void initDiffuseSIA(Geometry::Scene & scene)
 {
-	Geometry::Material * cubeEmissif = new Geometry::Material(RGBColor(), RGBColor(1, 0.0, 0.0), RGBColor(0.0, 0.0, 0.0), 20.0f, RGBColor(0.08,0.08,0.0));
-	Geometry::Material * material2 = new Geometry::Material(RGBColor(), RGBColor(1.0, 1.0, 1.0), RGBColor(0, 0, 0), 1000, RGBColor());
-	Geometry::Material * cubeMat = new Geometry::Material(RGBColor(), RGBColor(1, 0.0, 0.0), RGBColor(0.0, 0.0, 0.0), 20.0f, RGBColor());
-	//Geometry::Material * cubeMat = new Geometry::Material(RGBColor(), RGBColor(1.0f,0.0,0.0), RGBColor(0.0,0.0,0.0), 20.0f, RGBColor(10.0,0,0)) ;
-	Geometry::Cornel geo(material2, material2, material2, material2, material2, material2);
+	Geometry::Material * ocre = new Geometry::Material(RGBColor(), RGBColor(1.0, 0.87, 0.53), RGBColor(0, 0, 0), 4, RGBColor(),"",0.4);
+	Geometry::Material * pourpre = new Geometry::Material(RGBColor(), RGBColor(0.70,0.13, 0.13), RGBColor(0, 0, 0), 4, RGBColor(), "", 0.4);
+	Geometry::Material * emeraude = new Geometry::Material(RGBColor(), RGBColor(0.07, 0.72, 0.29), RGBColor(0, 0, 0), 4, RGBColor(), "", 0.4);
+	Geometry::Material * ivoire = new Geometry::Material(RGBColor(), RGBColor(1.0, 1.0, 1.0), RGBColor(0, 0, 0), 4, RGBColor(1.0,1.0,1.0)*5, "", 0.4);
+	Geometry::Material * turquoise = new Geometry::Material(RGBColor(), RGBColor(0.06, 157/255., 232/255.), RGBColor(0, 0, 0), 100, RGBColor() , "", 0.4);
+	Geometry::Material * ebene = new Geometry::Material(RGBColor(), RGBColor(53/255., 53/255., 52/255.), RGBColor(0, 0, 0), 4, RGBColor(), "", 0.4);
+	Geometry::Material * miroir_material = new Geometry::Material(RGBColor(), RGBColor(0.3,0.3,0.3), RGBColor(0.7, 0.7, 0.7), 10, RGBColor(), "", 0.4);
 
+
+	Geometry::Cornel geo(ocre, ocre, ocre, ocre, emeraude, pourpre);
 	geo.scaleX(10);
 	geo.scaleY(10);
 	geo.scaleZ(10);
 	scene.add(geo);
 
-	Geometry::Cube tmp(cubeMat);
-	tmp.translate(Math::makeVector(1.5, -1.5, 0.0));
-	scene.add(tmp);
+	Geometry::Square light(ivoire);
+	light.translate(Math::makeVector(0.0, 0.0, 4.99));
+	light.scaleX(3);
+	light.scaleY(3);
+	scene.add(light);
 
-	Geometry::Cube tmp2(cubeEmissif);
-	tmp2.translate(Math::makeVector(2, 1, -4));
-	scene.add(tmp2);
+	Geometry::Cylinder cylinder(1000, 0.7, 0.7, turquoise);
+	cylinder.scaleZ(5);
+	cylinder.translate(Math::makeVector(3.0, 2.0, -2.5));
+	scene.add(cylinder);
+
+	Geometry::Square miroir(miroir_material);
+	Math::Quaternion<double> r(Math::makeVector(0.0,1.0,0.0),67.5);
+	miroir.rotate(r);
+	miroir.translate(Math::makeVector(4.99, 0.0, -0.1));
+	miroir.scaleZ(8);
+	miroir.scaleY(8);
+	scene.add(miroir);
+
+	Geometry::Cube table(ebene);
+	table.scaleZ(0.1);
+	table.scaleY(4);
+	table.translate(Math::makeVector(1.0, -3.0, -2.));
+	scene.add(table);
+
+
 
 	// 2.2 Adds point lights in the scene 
 	{
-		Geometry::PointLight pointLight(Math::makeVector(0.0f, 0.f, 2.0f), RGBColor(0.5f, 0.5f, 0.5f));
-		//scene.add(pointLight);
-	}
-	{
-		Geometry::PointLight pointLight2(Math::makeVector(4.f, 0.f, 0.f), RGBColor(0.5f, 0.5f, 0.5f));
-		scene.add(pointLight2);
-	}
-	{
-		Geometry::Camera camera(Math::makeVector(-4.0f, 0.0f, 0.0f), Math::makeVector(0.0f, 0.0f, 0.0f), 0.3f, 1.0f, 1.0f);
+		Geometry::Camera camera(Math::makeVector(-4.0f, 0.0f, 0.0f), Math::makeVector(0.0f, 0.0f, 0.0f), 0.4f, 1.0f, 1.0f);
 		scene.setCamera(camera);
 	}
 
@@ -243,10 +260,10 @@ void initSpecular(Geometry::Scene & scene)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void initDiffuseSpecular(Geometry::Scene & scene)
 {
-	Geometry::Material * material = new Geometry::Material(RGBColor(), RGBColor(0,0,0.0), RGBColor(0.7f,0.7f,0.7f), 100, RGBColor()) ;
-	Geometry::Material * material2 = new Geometry::Material(RGBColor(), RGBColor(1,1,1.0f), RGBColor(0,0,0), 1000, RGBColor()) ;
-	Geometry::Material * cubeMat = new Geometry::Material(RGBColor(), RGBColor(1.0f, 0.0, 0.0), RGBColor(0.0, 0.0, 0.0), 20.0f, RGBColor());
-	Geometry::Material * cubeMat2 = new Geometry::Material(RGBColor(), RGBColor(1.0f, 0.0, 0.0), RGBColor(0.0, 0.0, 0.0), 20.0f, RGBColor());
+	Geometry::Material * material = new Geometry::Material(RGBColor(), RGBColor(0,0,0.0), RGBColor(0.7f,0.7f,0.7f), 100, RGBColor(),"",0.4) ;
+	Geometry::Material * material2 = new Geometry::Material(RGBColor(), RGBColor(1,1,1.0f), RGBColor(0,0,0), 100, RGBColor(),"", 0.4) ;
+	Geometry::Material * cubeMat = new Geometry::Material(RGBColor(), RGBColor(1.0f, 0.0, 0.0), RGBColor(0.0, 0.0, 0.0), 20.0f, RGBColor(),"", 0.4);
+	Geometry::Material * cubeMat2 = new Geometry::Material(RGBColor(), RGBColor(1.0f, 0.0, 0.0), RGBColor(0.0, 0.0, 0.0), 20.0f, RGBColor(),"", 0.4);
 	//Geometry::Material * cubeMat = new Geometry::Material(RGBColor(), RGBColor(0.0f,0.0,0.0), RGBColor(0.0,0.0,0.0), 20.0f, RGBColor(10.0,0,0)) ;
 	//Geometry::Material * cubeMat2 = new Geometry::Material(RGBColor(), RGBColor(0.0f,0.0,0.0), RGBColor(0.0,0.0,0.0), 20.0f, RGBColor(0.0,10,0)) ;
 	Geometry::Cornel geo(material2, material2, material, material, material, material) ; //new Geometry::Cube(material2) ;////new Cone(4, material) ; //new Geometry::Cylinder(5, 1, 1, material) ;////////new Geometry::Cube(material) ;////; //new Geometry::Cube(material) ; //new Geometry::Cylinder(100, 2, 1, material) ; //
@@ -787,8 +804,8 @@ int main(int argc, char ** argv)
 
 	// 2.1 initializes the geometry (choose only one initialization)
 	//initDiffuse(scene) ;
-	//initDiffuseSIA(scene);
-	initDiffuseSpecular(scene) ;
+	initDiffuseSIA(scene);
+	//initDiffuseSpecular(scene) ;
 	//initSpecular(scene) ;
 	//initGuitar(scene);
 	//initDog(scene);
