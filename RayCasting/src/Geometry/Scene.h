@@ -362,13 +362,13 @@ namespace Geometry
 				double G = (normal*light_dir) / (distance + 1);
 
 				RGBColor texture = intersection.triangle()->sampleTexture(intersection.uTriangleValue(), intersection.vTriangleValue());
-				RGBColor brdf = material->getDiffuse()*texture;
+				RGBColor brdf = material->BRDF(texture, ray.direction(), light_dir, normal);
 
 				//light.computeScore();
 				//double proba_light = light.getScore() / m_scoreLight;
 
 				//Proba Light a revoir
-				double proba_light = 1.;
+				double proba_light = 1.f;
 
 				result = result + light.color() * brdf * G * shadow / proba_light;				
 			}
@@ -408,14 +408,15 @@ namespace Geometry
 				Math::Vector3f normal = intersection.triangle()->sampleNormal(intersection.uTriangleValue(), intersection.vTriangleValue(), ray.source()).normalized();
 				Math::Vector3f reflected = Triangle::reflectionDirection(normal, ray.direction()).normalized();
 
-				//Modifier le 3 avec shininess;
 				Math::Vector3f indirect = Math::RandomDirection(reflected, material->getShininess()).generate().normalized();
+
 				Ray rayIndirect(intersection.intersection() + indirect * 0.001, indirect);
 
 				RGBColor texture = intersection.triangle()->sampleTexture(intersection.uTriangleValue(), intersection.vTriangleValue());
-				RGBColor brdf = material->getDiffuse()*texture;
 
-				float cos = normal * reflected;
+				RGBColor brdf = material->BRDF(texture, ray.direction(), indirect, normal);
+
+				float cos = normal * indirect;
 
 				result = result + sendRay(rayIndirect, depth + 1, maxDepth, diffuseSamples, specularSamples)*brdf*cos;
 			}

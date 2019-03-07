@@ -3,6 +3,7 @@
 
 #include <Geometry/RGBColor.h>
 #include <Geometry/Texture.h>
+#include <Math/Vector.h>
 
 namespace Geometry
 {
@@ -177,6 +178,19 @@ namespace Geometry
 
 		void setAbsorption(double alpha) {
 			m_alpha = alpha;
+		}
+
+		RGBColor BRDF(RGBColor textureColor, Math::Vector3f entree, Math::Vector3f sortie, Math::Vector3f normal) {
+			RGBColor result = this->getDiffuse()*textureColor;
+			float factor = 1.f;
+			//float factor = (pow(abs(reflectionDirection(normal, entree)*sortie), 3) - pow(0.9*abs(reflectionDirection(normal, entree)*sortie), 5))/0.37;
+			return result*factor;
+		}
+
+		static Math::Vector3f reflectionDirection(Math::Vector3f const & n, Math::Vector3f const & dir)
+		{
+			Math::Vector3f reflected(dir - n * (2.0f*(dir*n)));
+			return reflected;
 		}
 
 	};
