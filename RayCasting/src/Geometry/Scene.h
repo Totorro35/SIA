@@ -554,7 +554,7 @@ namespace Geometry
 					}
 				}
 			}
-
+			//std::cout << result << std::endl;
 			std::cout << 100*abs(energieLastPass - result) / result << std::endl;
 			return result;
 		}
@@ -619,6 +619,7 @@ namespace Geometry
 			//Chargement de la texture de Skybox
 			Texture text("..\\..\\Models\\Skybox\\Skybox1.png");
 			skybox=&text;
+			//skybox = &Texture("");
 			//loadTexture("..\\..\\Models\\Skybox\\Skybox1.png")
 
 			for (::std::pair<BoundingBox, Geometry>& geometry : m_geometries) {
@@ -669,19 +670,25 @@ namespace Geometry
 			int passPerPixelCounter = 0;
 			{
 				//for (double xp = -0.5; xp < 0.5; xp += step)
-				double xp = 0.;
+				
 				{
 					//for (double yp = -0.5; yp < 0.5; yp += step)
-					double yp = 0.;
-					while((abs(energieLastPass-energiePass)/energiePass)> 0.001)
+					
+					while((abs(energieLastPass-energiePass)/energiePass)> 0.01)
 					{
+						double xp = Math::RandomDirection::random() - 0.5;
+						double yp = Math::RandomDirection::random() - 0.5;
+						/*
+						double xp = 0.;
+						double yp = 0.;
+						*/
 						if (m_pass == nextCheck)
 						{
 							energieLastPass = energiePass;
 							energiePass = energie();
-							nextCheck = int(nextCheck * 1.2);
+							nextCheck = int(nextCheck + 20);
 						}
-						
+						//energie();
 						::std::cout << "Pass: " << m_pass << "/" << passPerPixel * subPixelDivision * subPixelDivision << ::std::endl;
 						++m_pass;
 						// Sends primary rays for each pixel (uncomment the pragma to parallelize rendering)
@@ -829,7 +836,7 @@ namespace Geometry
 
 						case SDLK_s:
 							t *= -1;
-							alpha = atan((target[2] - position[2]) / abs(target[1] - position[1]));
+							alpha = atan((target[2] - position[2]) / sqrt(sqrt(pow((target[1] - position[1]), 2) + pow((target[0] - position[0]), 2))));
 							if (alpha + t > -3.14 / 2.)
 							{
 								delta[0] = target[0];
@@ -858,6 +865,9 @@ namespace Geometry
 					default:
 						break;
 					}
+
+					std::cout << "position : " << position[0] << " " << position[1] << " " << position[2] << std::endl;
+					std::cout << "position : " << target[0] << " " << target[1] << " " << target[2] << std::endl;
 				}/*while*/
 			}/*while(!done)*/
 		}
@@ -877,6 +887,25 @@ namespace Geometry
 			Texture text("..\\..\\Models\\Skybox\\Skybox1.png");
 			skybox = &text;
 
+			for (::std::pair<BoundingBox, Geometry>& geometry : m_geometries) {
+				LightSampler lightsampler;
+				for (const Triangle & t : geometry.second.getTriangles()) {
+					lightsampler.add(t);
+				}
+				if (lightsampler.hasLights())
+					m_lightSamplers.push_back(lightsampler);
+			}
+
+			std::cout << m_lightSamplers.size() + m_lights.size() << " lights" << std::endl;
+
+			for (LightSampler& sampler : m_lightSamplers) {
+				sampler.computeScore();
+				m_scoreLight += sampler.getScore();
+			}
+			for (PointLight & light0 : m_lights) {
+				light0.computeScore();
+				m_scoreLight += light0.getScore();
+			}
 			//Calcul de la structure d'optimisation
 			accelerator.init(&m_geometries);
 
@@ -951,6 +980,154 @@ namespace Geometry
 
 				}
 			}
+		}
+
+		void computeMovie(int maxDepth, int subPixelDivision = 1, int passPerPixel = 1)
+		{
+			//Chargement de la texture de Skybox
+			Texture text("..\\..\\Models\\Skybox\\Skybox1.png");
+			skybox = &text;
+			//skybox = &Texture("");
+			//loadTexture("..\\..\\Models\\Skybox\\Skybox1.png")
+
+			for (::std::pair<BoundingBox, Geometry>& geometry : m_geometries) {
+				LightSampler lightsampler;
+				for (const Triangle & t : geometry.second.getTriangles()) {
+					lightsampler.add(t);
+				}
+				if (lightsampler.hasLights())
+					m_lightSamplers.push_back(lightsampler);
+			}
+
+			std::cout << m_lightSamplers.size() + m_lights.size() << " lights" << std::endl;
+
+			for (LightSampler& sampler : m_lightSamplers) {
+				sampler.computeScore();
+				m_scoreLight += sampler.getScore();
+			}
+			for (PointLight & light0 : m_lights) {
+				light0.computeScore();
+				m_scoreLight += light0.getScore();
+			}
+
+			//Calcul de la structure d'optimisation
+			accelerator.init(&m_geometries);
+
+			// Step on x and y for subpixel sampling
+			double step = 1.0f / subPixelDivision;
+			// Table accumulating values computed per pixel (enable rendering of each pass)
+			pixelTable = ::std::vector<::std::vector<::std::pair<int, RGBColor> > >(m_visu->width(), ::std::vector<::std::pair<int, RGBColor> >(m_visu->width(), ::std::make_pair(0, RGBColor())));
+
+			// 1 - Rendering time
+			LARGE_INTEGER frequency;        // ticks per second
+			LARGE_INTEGER t1, t2;           // ticks
+			double elapsedTime;
+			// get ticks per second
+			QueryPerformanceFrequency(&frequency);
+			// start timer
+			QueryPerformanceCounter(&t1);
+			// Rendering pass number
+			m_pass = 0;
+
+			int nextCheck = 10;
+
+			double energiePass = std::numeric_limits<double>::max() / (double)2;
+
+
+			std::vector< Math::Vector3f> positions;
+			positions.push_back(Math::makeVector(-4.f, 0.f, 0.f));
+			positions.push_back(Math::makeVector(-3.97f, 0.16f, 0.f));
+			positions.push_back(Math::makeVector(-3.95f, 0.21f, 0.f));
+			positions.push_back(Math::makeVector(-3.93f, 0.32f, 0.f));
+			positions.push_back(Math::makeVector(-3.89f, 0.48f, 0.f));
+
+			std::vector< Math::Vector3f> targets;
+			targets.push_back(Math::makeVector(-3., 0., 0.));
+			targets.push_back(Math::makeVector(-2.97, 0.06, 0.));
+			targets.push_back(Math::makeVector(-2.99, -0.04, 0.));
+			targets.push_back(Math::makeVector(-2.98, 0.03, 0.));
+			targets.push_back(Math::makeVector(-2.96, 0.09, 0.));
+
+
+			// Rendering
+			//for(int passPerPixelCounter = 0 ; passPerPixelCounter<passPerPixel ; ++passPerPixelCounter)
+			int passPerPixelCounter = 0;
+			{
+				//for (double xp = -0.5; xp < 0.5; xp += step)
+				for (int p = 0; p < positions.size(); ++p)
+				{
+					m_camera.setPosition(positions[p]);
+					m_camera.setTarget(targets[p]);
+
+
+					//for (double yp = -0.5; yp < 0.5; yp += step)
+
+					while ((abs(energieLastPass - energiePass) / energiePass) > 0.2)
+					{
+						double xp = Math::RandomDirection::random() - 0.5;
+						double yp = Math::RandomDirection::random() - 0.5;
+						if (m_pass == nextCheck)
+						{
+							energieLastPass = energiePass;
+							energiePass = energie();
+							nextCheck = int(nextCheck + 20);
+						}
+						//energie();
+						::std::cout << "Pass: " << m_pass << "/" << passPerPixel * subPixelDivision * subPixelDivision << ::std::endl;
+						++m_pass;
+						// Sends primary rays for each pixel (uncomment the pragma to parallelize rendering)
+#pragma omp parallel for schedule(dynamic)//, 10)//guided)//dynamic)
+						for (int y = 0; y < m_visu->height(); y++)
+						{
+							for (int x = 0; x < m_visu->width(); x++)
+							{
+#pragma omp critical (visu)
+								m_visu->plot(x, y, RGBColor(1000.0, 0.0, 0.0));
+								// Ray casting
+								RGBColor result = sendRay(m_camera.getRay(((double)x + xp) / m_visu->width(), ((double)y + yp) / m_visu->height()), 0, maxDepth, m_diffuseSamples, m_specularSamples);
+								// Accumulation of ray casting result in the associated pixel
+								::std::pair<int, RGBColor> & currentPixel = pixelTable[x][y];
+								currentPixel.first++;
+								currentPixel.second = currentPixel.second + result;
+								// Pixel rendering (with simple tone mapping)
+#pragma omp critical (visu)
+								m_visu->plot(x, y, pixelTable[x][y].second / (double)(pixelTable[x][y].first) * 10);
+								// Updates the rendering context (per pixel) - warning per pixel update can be costly...
+//#pragma omp critical (visu)
+								//m_visu->update();
+							}
+							//#pragma omp critical (visu)
+														//m_visu->update();
+						}
+						// Updates the rendering context (per pass)
+						std::vector<SDL_Event> events = m_visu->update();
+						eventCompute(events);
+
+
+						// We print time for each pass
+						QueryPerformanceCounter(&t2);
+						elapsedTime = (double)(t2.QuadPart - t1.QuadPart) / (double)frequency.QuadPart;
+						double remainingTime = (elapsedTime / m_pass)*(passPerPixel * subPixelDivision * subPixelDivision - m_pass);
+						::std::cout << "time: " << elapsedTime << "s. " << ", remaining time: " << remainingTime << "s. " << ", total time: " << elapsedTime + remainingTime << ::std::endl;
+
+
+					}
+					save(pixelTable, m_name + "Movie\\" + std::to_string(p) + ".ppm");
+					energieLastPass = std::numeric_limits<double>::max();
+					pixelTable = ::std::vector<::std::vector<::std::pair<int, RGBColor> > >(m_visu->width(), ::std::vector<::std::pair<int, RGBColor> >(m_visu->width(), ::std::make_pair(0, RGBColor())));
+				}
+
+
+
+			}
+			// stop timer
+			QueryPerformanceCounter(&t2);
+			elapsedTime = (double)(t2.QuadPart - t1.QuadPart) / (double)frequency.QuadPart;
+			::std::cout << "time: " << elapsedTime << "s. " << ::std::endl;
+
+
+			save(pixelTable, m_name + "Movie\\" + std::to_string(m_pass) + ".ppm");
+
 		}
 
 

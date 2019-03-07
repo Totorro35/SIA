@@ -145,7 +145,7 @@ void initDiffuseSIA(Geometry::Scene & scene)
 
 	// 2.2 Adds point lights in the scene 
 	{
-		Geometry::Camera camera(Math::makeVector(-4.0f, 0.0f, 0.0f), Math::makeVector(0.0f, 0.0f, 0.0f), 0.4f, 1.0f, 1.0f);
+		Geometry::Camera camera(Math::makeVector(-4.0f, 0.0f, 0.0f), Math::makeVector(-3.0f, .0f, 0.0f), 0.4f, 1.0f, 1.0f);
 		scene.setCamera(camera);
 	}
 
@@ -849,6 +849,7 @@ int main(int argc, char ** argv)
 	*/
 	//scene.compute(maxBounce, subPixelSampling, passPerPixel) ;
 	scene.compute(maxBounce, subPixelSampling, 1000);
+	//scene.computeMovie(maxBounce, subPixelSampling, 1000);
 	//scene.computeTempsReel(maxBounce,2.);
 
 	// 5 - waits until a key is pressed
