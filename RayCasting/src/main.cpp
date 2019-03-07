@@ -107,7 +107,7 @@ void initDiffuseSIA(Geometry::Scene & scene)
 	Geometry::Material * ivoire = new Geometry::Material(RGBColor(), RGBColor(1.0, 1.0, 1.0), RGBColor(0, 0, 0), 4, RGBColor(1.0,1.0,1.0)*5, "", 0.4);
 	Geometry::Material * turquoise = new Geometry::Material(RGBColor(), RGBColor(0.06, 157/255., 232/255.), RGBColor(0, 0, 0), 100, RGBColor() , "", 0.4);
 	Geometry::Material * ebene = new Geometry::Material(RGBColor(), RGBColor(53/255., 53/255., 52/255.), RGBColor(0, 0, 0), 4, RGBColor(), "", 0.4);
-	Geometry::Material * miroir_material = new Geometry::Material(RGBColor(), RGBColor(0.3,0.3,0.3), RGBColor(0.7, 0.7, 0.7), 10, RGBColor(), "", 0.4);
+	Geometry::Material * miroir_material = new Geometry::Material(RGBColor(), RGBColor(1.0,1.0,1.0), RGBColor(0.0, 0.0, 0.0), 100000, RGBColor(), "", 0.4);
 
 
 	Geometry::Cornel geo(ocre, ocre, ocre, ocre, emeraude, pourpre);
