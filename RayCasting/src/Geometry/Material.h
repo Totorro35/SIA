@@ -39,7 +39,7 @@ namespace Geometry
 		/// <param name="shininess">The shininess.</param>
 		/// <param name="emissiveColor">The emissive color.</param>
 		Material(RGBColor const & ambientColor = RGBColor(), RGBColor const & diffuseColor = RGBColor(),
-				 RGBColor specularColor = RGBColor(), double shininess = 1.0, RGBColor const & emissiveColor = RGBColor(), std::string const & textureFile = "", double alpha=0.4)
+				 RGBColor specularColor = RGBColor(), double shininess = 1.0, RGBColor const & emissiveColor = RGBColor(), std::string const & textureFile = "", double alpha=0.9)
 				 : m_ambientColor(ambientColor), m_diffuseColor(diffuseColor), m_specularColor(specularColor),
 				   m_shininess(shininess), m_emissiveColor(emissiveColor), m_textureFile(textureFile), m_texture(NULL), m_alpha(alpha)
 		{}

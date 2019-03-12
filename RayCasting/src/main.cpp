@@ -804,7 +804,7 @@ int main(int argc, char ** argv)
 
 	// 2.1 initializes the geometry (choose only one initialization)
 	//initDiffuse(scene) ;
-	initDiffuseSIA(scene);
+	//initDiffuseSIA(scene);
 	//initDiffuseSpecular(scene) ;
 	//initSpecular(scene) ;
 	//initGuitar(scene);
@@ -816,7 +816,7 @@ int main(int argc, char ** argv)
 	//initBoat(scene);
 	//initSombrero(scene);
 	//initTibetHouse(scene);
-	//initTibetHouseInside(scene);
+	initTibetHouseInside(scene);
 	//initMedievalCity(scene);
 	//initDragon(scene);
 

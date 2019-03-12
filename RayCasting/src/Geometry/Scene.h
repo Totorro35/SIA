@@ -83,6 +83,9 @@ namespace Geometry
 
 
 		double energieLastPass = std::numeric_limits<double>::max();
+
+		std::string energieString = "";
+		std::string passCounter = "";
 		
 
 	public:
@@ -267,7 +270,6 @@ namespace Geometry
 
 			if (mur.valid()) {
 				if (mur.triangle() == intersection.triangle()) {
-					//std::cout << "mur" << std::endl;
 					return 1.;
 				}
 			}
@@ -368,7 +370,7 @@ namespace Geometry
 				//double proba_light = light.getScore() / m_scoreLight;
 
 				//Proba Light a revoir
-				double proba_light = 1.f;
+				double proba_light = 2.f;
 
 				result = result + light.color() * brdf * G * shadow / proba_light;				
 			}
@@ -468,7 +470,7 @@ namespace Geometry
 					}
 
 					result = result + phong_indirect(ray, intersection, depth + 1, maxDepth, diffuseSamples, specularSamples);
-			
+					/*
 					if (brouill) {
 						double d = intersection.tRayValue();
 						double f = 0.;
@@ -480,7 +482,9 @@ namespace Geometry
 						}
 						result = result * f + brouillard * (1 - f);
 					}
+					*/
 				}
+				/*
 				else {
 					if (brouill) {
 						result = brouillard;
@@ -495,7 +499,7 @@ namespace Geometry
 						result = background;
 					}
 					
-				}
+				}*/
 			}
 			return result;
 		}
@@ -556,8 +560,30 @@ namespace Geometry
 				}
 			}
 			//std::cout << result << std::endl;
-			std::cout << 100*abs(energieLastPass - result) / result << std::endl;
+			//std::cout << 100*abs(energieLastPass - result) / result << std::endl;
 			return result;
+		}
+
+		void SaveEnergie(std::string energieString, std::string passCounter)
+		{
+			std::ofstream fichier(m_name+ std::to_string(m_pass) + ".ods", std::ios::out | std::ios::trunc);  // on ouvre le fichier en lecture
+
+			// Output FB as Image
+
+
+
+
+			if (fichier)  // si l'ouverture a réussi
+			{	
+				fichier << passCounter << ";\n" << energieString << ";\n";
+				
+				fichier.close();  // on ferme le fichier
+			}
+			else {  // sinon
+				std::cerr << "Impossible d'ouvrir le fichier !" << std::endl;
+			}
+
+			std::cout << "Enregistrement termine" << std::endl;
 		}
 
 
@@ -585,6 +611,7 @@ namespace Geometry
 
 						case SDLK_s:
 							save(pixelTable, m_name + std::to_string(m_pass)+".ppm");
+							SaveEnergie(energieString, passCounter);
 							done = true;
 							break;
 						}
@@ -617,6 +644,7 @@ namespace Geometry
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		void compute(int maxDepth, int subPixelDivision = 1, int passPerPixel = 1)
 		{
+			
 			//Chargement de la texture de Skybox
 			Texture text("..\\..\\Models\\Skybox\\Skybox1.png");
 			skybox=&text;
@@ -677,12 +705,13 @@ namespace Geometry
 					
 					while((abs(energieLastPass-energiePass)/energiePass)> 0.01)
 					{
+
 						double xp = Math::RandomDirection::random() - 0.5;
 						double yp = Math::RandomDirection::random() - 0.5;
-						/*
-						double xp = 0.;
-						double yp = 0.;
-						*/
+						
+						energieString = energieString + std::to_string(int(energie())) + ",";
+						passCounter = passCounter + std::to_string(m_pass) + ",";
+
 						if (m_pass == nextCheck)
 						{
 							energieLastPass = energiePass;
@@ -738,6 +767,8 @@ namespace Geometry
 
 
 			save(pixelTable, m_name + std::to_string(m_pass) + ".ppm");
+
+			SaveEnergie(energieString, passCounter);
 
 		}
 
