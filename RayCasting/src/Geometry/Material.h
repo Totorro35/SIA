@@ -29,7 +29,18 @@ namespace Geometry
 		//Coefficient d'absorption;
 		double m_alpha;
 
+		int m_id=0;
+
 	public:
+
+		int getId() {
+			return m_id;
+		}
+
+		void setId(int id) {
+			m_id = id;
+		}
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Material"/> class.
 		/// </summary>
@@ -179,7 +190,7 @@ namespace Geometry
 		void setAbsorption(double alpha) {
 			m_alpha = alpha;
 		}
-
+		/*
 		RGBColor BRDF(RGBColor textureColor, Math::Vector3f entree, Math::Vector3f sortie, Math::Vector3f normal) {
 			RGBColor result = this->getDiffuse()*textureColor;
 			float factor = 1.f;
@@ -191,7 +202,7 @@ namespace Geometry
 		{
 			Math::Vector3f reflected(dir - n * (2.0f*(dir*n)));
 			return reflected;
-		}
+		}*/
 
 	};
 }
