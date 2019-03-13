@@ -102,9 +102,11 @@ void createSurfaceLigth(Geometry::Scene & scene, double value)
 void initDiffuseSIA(Geometry::Scene & scene)
 {
 	Geometry::Material * ocre = new Geometry::Material(RGBColor(), RGBColor(1.0, 0.87, 0.53), RGBColor(0, 0, 0), 4, RGBColor(),"",0.4);
+	ocre->setId(0);
 	Geometry::Material * pourpre = new Geometry::Material(RGBColor(), RGBColor(0.70,0.13, 0.13), RGBColor(0, 0, 0), 4, RGBColor(), "", 0.4);
 	Geometry::Material * emeraude = new Geometry::Material(RGBColor(), RGBColor(0.07, 0.72, 0.29), RGBColor(0, 0, 0), 4, RGBColor(), "", 0.4);
 	Geometry::Material * ivoire = new Geometry::Material(RGBColor(), RGBColor(1.0, 1.0, 1.0), RGBColor(0, 0, 0), 4, RGBColor(1.0,1.0,1.0), "", 0.4);
+	
 	Geometry::Material * turquoise = new Geometry::Material(RGBColor(), RGBColor(0.06, 157/255., 232/255.), RGBColor(0, 0, 0), 100, RGBColor() , "", 0.4);
 	turquoise->setId(2);
 	Geometry::Material * ebene = new Geometry::Material(RGBColor(), RGBColor(53/255., 53/255., 52/255.), RGBColor(0, 0, 0), 4, RGBColor(), "", 0.4);
@@ -152,6 +154,57 @@ void initDiffuseSIA(Geometry::Scene & scene)
 	}
 
 	scene.setName(scene.getName() + "DiffuseSIA");
+}
+
+void initDemonstration(Geometry::Scene & scene)
+{
+
+	Math::Quaternion<double> r(Math::makeVector(0.0, 0.0, 1.0), -90.0);
+	for (int j = 0; j < 2; ++j) {
+		for (int i = -2; i < 3; ++i) {
+			Geometry::Loader3ds loader(m_modelDirectory + "\\Pokeball.3ds", m_modelDirectory + "");
+			//// We remove the specular components of the materials...
+			::std::vector<Geometry::Material*> materials = loader.getMaterials();
+
+			for (auto it = materials.begin(), end = materials.end(); it != end; ++it)
+			{
+				//(*it)->setSpecular(RGBColor());
+				(*it)->setId(i+2);
+			}
+
+			for (size_t cpt = 0; cpt < loader.getMeshes().size() - 3; ++cpt)
+			{
+				loader.getMeshes()[cpt]->rotate(r);
+				loader.getMeshes()[cpt]->scale(0.01);
+				loader.getMeshes()[cpt]->translate(Math::makeVector(float(j)*4, float(i) * 4, -5.0f));
+				scene.add(*loader.getMeshes()[cpt]);
+			}
+		}
+	}
+
+	Geometry::Material * ocre = new Geometry::Material(RGBColor(), RGBColor(1.0, 0.87, 0.53), RGBColor(0, 0, 0), 4, RGBColor(), "", 0.4);
+	ocre->setId(0);
+	
+	Geometry::Material * ivoire = new Geometry::Material(RGBColor(), RGBColor(1.0, 1.0, 1.0), RGBColor(0, 0, 0), 4, RGBColor(1.0, 1.0, 1.0), "", 0.4);
+
+	Geometry::Cornel geo(ocre, ocre, ocre, ocre, ocre, ocre);
+	geo.scaleX(10);
+	geo.scaleY(20);
+	geo.scaleZ(10);
+	scene.add(geo);
+
+	Geometry::Square light(ivoire);
+	light.translate(Math::makeVector(0.0, 0.0, 4.99));
+	light.scaleX(3);
+	light.scaleY(3);
+	scene.add(light);
+
+	{
+		Geometry::Camera camera(Math::makeVector(-4.9f, 0.0f, 3.0f), Math::makeVector(-3.0f, .0f, 2.0f), 0.4f, 1.60f, 0.9f);
+		scene.setCamera(camera);
+	}
+
+	scene.setName(scene.getName() + "PokeBoule");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -512,7 +565,8 @@ void initBoat(Geometry::Scene & scene)
 	for (auto it = materials.begin(), end = materials.end(); it != end; ++it)
 	{
 		(*it)->setSpecular(RGBColor());
-		(*it)->setId(2);
+		(*it)->setId(0);
+
 	}
 
 	for (size_t cpt = 0; cpt < loader.getMeshes().size(); ++cpt)
@@ -799,7 +853,8 @@ int main(int argc, char ** argv)
 	// 1 - Initializes a window for rendering
 	//Visualizer::Visualizer visu(1000,1000) ;
 	//Visualizer::Visualizer visu(800, 800);
-	Visualizer::Visualizer visu(500, 500);
+	Visualizer::Visualizer visu(800, 450);
+	//Visualizer::Visualizer visu(500, 500);
 	//Visualizer::Visualizer visu(300,300);
 	
 	// 2 - Initializes the scene
@@ -808,6 +863,8 @@ int main(int argc, char ** argv)
 	// 2.1 initializes the geometry (choose only one initialization)
 	//initDiffuse(scene) ;
 	//initDiffuseSIA(scene);
+
+	//initDemonstration(scene);
 	//initDiffuseSpecular(scene) ;
 	//initSpecular(scene) ;
 	//initGuitar(scene);

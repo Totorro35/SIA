@@ -368,10 +368,11 @@ namespace Geometry
 
 				//light.computeScore();
 				//Proba Light a revoir
+
 				double proba_light = 1 / m_scoreLight;
 				proba_light = 0.2;
 
-				result = result + light.color() * brdf * G * shadow / proba_light;				
+				result = result + light.color() * brdf * G * shadow * proba_light;				
 			}
 
 			result = result / double(lights.size());
@@ -469,7 +470,7 @@ namespace Geometry
 					}*/
 
 					result = result + phong_indirect(ray, intersection, depth + 1, maxDepth, diffuseSamples, specularSamples);
-					/*
+					
 					if (brouill) {
 						double d = intersection.tRayValue();
 						double f = 0.;
@@ -481,9 +482,9 @@ namespace Geometry
 						}
 						result = result * f + brouillard * (1 - f);
 					}
-					*/
+					
 				}
-				/*
+				
 				else {
 					if (brouill) {
 						result = brouillard;
@@ -498,7 +499,7 @@ namespace Geometry
 						result = background;
 					}
 					
-				}*/
+				}
 			}
 			return result;
 		}
@@ -518,7 +519,7 @@ namespace Geometry
 			if (fichier)  // si l'ouverture a réussi
 			{
 				std::cout << "Debut de l'enregistrement" << std::endl;
-				fichier << "P3\n" << m_visu->height() << " " << m_visu->width() << "\n255\n";
+				fichier << "P3\n" << m_visu->width() << " " << m_visu->height() << "\n255\n";
 				for (int y = 0; y < m_visu->height(); y++) {
 					for (int x = 0; x < m_visu->width(); x++) {
 						//size_t pixel_index = y * m_visu->height() + x;
@@ -711,7 +712,8 @@ namespace Geometry
 						energieString = energieString + std::to_string(int(energie())) + ",";
 						passCounter = passCounter + std::to_string(m_pass) + ",";
 
-						if (m_pass == nextCheck && false )
+
+						if (m_pass == nextCheck && false)
 						{
 							energieLastPass = energiePass;
 							energiePass = energie();

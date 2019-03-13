@@ -24,6 +24,10 @@ namespace Geometry
 			Math::Vector3f entree = ray.direction();
 			Math::Vector3f reflechit = Triangle::reflectionDirection(normal, ray.direction()).normalized();
 			float theta = sortie * reflechit;
+			Math::Vector3f h = (entree + sortie).normalized();
+			float fresnel = material->getFresnel() + (1 - material->getFresnel())*pow(1 - (entree*h), 5);
+			float D = 1 / pow( material->getTaille()* cos(material->getRepartition()) , 2 ) * std::exp(-1*pow((std::tan(material->getRepartition())),2));
+			float G = std::min(std::min(2*(normal*h)*(normal*entree)/ (h*entree), 2 * (normal*h)*(normal*sortie) / (h*entree)),1.);
 
 			int id= material->getId();
 			switch (id) {
@@ -38,10 +42,16 @@ namespace Geometry
 					break;
 				case 2 :
 					result = material->getDiffuse()*texture;
-					if (theta < 0) {
-						//std::cout << "Au scandale!!" << std::endl;
-					}
 					result = result * (pow(abs(theta), 3) - pow(0.9*abs(theta), 5)) / 0.37 * (normal * sortie);
+					break;
+				//Fresnel
+				case 3 :
+					//Fresnel
+					result = material->getDiffuse()*texture*fresnel;
+					break;
+				case 4:
+					//Cook
+					result = material->getDiffuse()*texture*abs(fresnel*D*G/(Math::pi*(normal*sortie)*(normal*entree)));
 					break;
 				default: 
 					break;
