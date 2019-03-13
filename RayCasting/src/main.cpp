@@ -104,7 +104,7 @@ void initDiffuseSIA(Geometry::Scene & scene)
 	Geometry::Material * ocre = new Geometry::Material(RGBColor(), RGBColor(1.0, 0.87, 0.53), RGBColor(0, 0, 0), 4, RGBColor(),"",0.4);
 	Geometry::Material * pourpre = new Geometry::Material(RGBColor(), RGBColor(0.70,0.13, 0.13), RGBColor(0, 0, 0), 4, RGBColor(), "", 0.4);
 	Geometry::Material * emeraude = new Geometry::Material(RGBColor(), RGBColor(0.07, 0.72, 0.29), RGBColor(0, 0, 0), 4, RGBColor(), "", 0.4);
-	Geometry::Material * ivoire = new Geometry::Material(RGBColor(), RGBColor(1.0, 1.0, 1.0), RGBColor(0, 0, 0), 4, RGBColor(1.0,1.0,1.0)*5, "", 0.4);
+	Geometry::Material * ivoire = new Geometry::Material(RGBColor(), RGBColor(1.0, 1.0, 1.0), RGBColor(0, 0, 0), 4, RGBColor(1.0,1.0,1.0), "", 0.4);
 	Geometry::Material * turquoise = new Geometry::Material(RGBColor(), RGBColor(0.06, 157/255., 232/255.), RGBColor(0, 0, 0), 100, RGBColor() , "", 0.4);
 	Geometry::Material * ebene = new Geometry::Material(RGBColor(), RGBColor(53/255., 53/255., 52/255.), RGBColor(0, 0, 0), 4, RGBColor(), "", 0.4);
 	Geometry::Material * miroir_material = new Geometry::Material(RGBColor(), RGBColor(1.0,1.0,1.0), RGBColor(0.0, 0.0, 0.0), 100000, RGBColor(), "", 0.4);
@@ -804,7 +804,7 @@ int main(int argc, char ** argv)
 
 	// 2.1 initializes the geometry (choose only one initialization)
 	//initDiffuse(scene) ;
-	//initDiffuseSIA(scene);
+	initDiffuseSIA(scene);
 	//initDiffuseSpecular(scene) ;
 	//initSpecular(scene) ;
 	//initGuitar(scene);
@@ -816,7 +816,7 @@ int main(int argc, char ** argv)
 	//initBoat(scene);
 	//initSombrero(scene);
 	//initTibetHouse(scene);
-	initTibetHouseInside(scene);
+	//initTibetHouseInside(scene);
 	//initMedievalCity(scene);
 	//initDragon(scene);
 

@@ -367,10 +367,8 @@ namespace Geometry
 				RGBColor brdf = material->BRDF(texture, ray.direction(), light_dir, normal);
 
 				//light.computeScore();
-				//double proba_light = light.getScore() / m_scoreLight;
-
 				//Proba Light a revoir
-				double proba_light = 2.f;
+				double proba_light = 1 / m_scoreLight;
 
 				result = result + light.color() * brdf * G * shadow / proba_light;				
 			}
