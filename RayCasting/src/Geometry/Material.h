@@ -29,7 +29,12 @@ namespace Geometry
 		//Coefficient d'absorption;
 		double m_alpha;
 
+		double m_fresnel=1/2;
+
 		int m_id=0;
+
+		double m_taille = 0.5;
+		double m_repartition = 0.5;
 
 	public:
 
@@ -39,6 +44,30 @@ namespace Geometry
 
 		void setId(int id) {
 			m_id = id;
+		}
+
+		double getTaille() {
+			return m_taille;
+		}
+
+		void setTaille(double taille) {
+			m_taille = taille;
+		}
+
+		double getFresnel() {
+			return m_fresnel;
+		}
+
+		void setFresnel(double fresnel) {
+			m_fresnel = fresnel;
+		}
+
+		double getRepartition() {
+			return m_repartition;
+		}
+
+		void setRepartition(double repartition) {
+			m_repartition = repartition;
 		}
 
 		/// <summary>
