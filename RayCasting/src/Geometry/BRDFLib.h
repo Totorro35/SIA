@@ -29,7 +29,7 @@ namespace Geometry
 			switch (id) {
 				//Phong
 				case 0 :
-					result = material->getDiffuse() * (normal * sortie) + material->getSpecular() * pow(theta, material->getShininess());
+					result = material->getDiffuse() * (normal * sortie) + material->getSpecular() * pow(abs(theta), material->getShininess());
 					result = result * texture;
 					break;
 				//100% Diffus

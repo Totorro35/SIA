@@ -108,6 +108,7 @@ void initDiffuseSIA(Geometry::Scene & scene)
 	Geometry::Material * turquoise = new Geometry::Material(RGBColor(), RGBColor(0.06, 157/255., 232/255.), RGBColor(0, 0, 0), 100, RGBColor() , "", 0.4);
 	turquoise->setId(2);
 	Geometry::Material * ebene = new Geometry::Material(RGBColor(), RGBColor(53/255., 53/255., 52/255.), RGBColor(0, 0, 0), 4, RGBColor(), "", 0.4);
+	ebene->setId(2);
 	Geometry::Material * miroir_material = new Geometry::Material(RGBColor(), RGBColor(1.0,1.0,1.0), RGBColor(0.0, 0.0, 0.0), 100000, RGBColor(), "", 0.4);
 
 
@@ -511,6 +512,7 @@ void initBoat(Geometry::Scene & scene)
 	for (auto it = materials.begin(), end = materials.end(); it != end; ++it)
 	{
 		(*it)->setSpecular(RGBColor());
+		(*it)->setId(2);
 	}
 
 	for (size_t cpt = 0; cpt < loader.getMeshes().size(); ++cpt)
@@ -805,7 +807,7 @@ int main(int argc, char ** argv)
 
 	// 2.1 initializes the geometry (choose only one initialization)
 	//initDiffuse(scene) ;
-	initDiffuseSIA(scene);
+	//initDiffuseSIA(scene);
 	//initDiffuseSpecular(scene) ;
 	//initSpecular(scene) ;
 	//initGuitar(scene);
@@ -814,7 +816,7 @@ int main(int argc, char ** argv)
 	//initTemple(scene);
 	//initRobot(scene);
 	//initGraveStone(scene);
-	//initBoat(scene);
+	initBoat(scene);
 	//initSombrero(scene);
 	//initTibetHouse(scene);
 	//initTibetHouseInside(scene);

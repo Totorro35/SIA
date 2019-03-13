@@ -369,6 +369,7 @@ namespace Geometry
 				//light.computeScore();
 				//Proba Light a revoir
 				double proba_light = 1 / m_scoreLight;
+				proba_light = 0.2;
 
 				result = result + light.color() * brdf * G * shadow / proba_light;				
 			}
@@ -414,7 +415,10 @@ namespace Geometry
 
 				RGBColor brdf = BRDFLib::computeColor(ray,intersection,indirect);
 
-				result = result + sendRay(rayIndirect, depth + 1, maxDepth, diffuseSamples, specularSamples)*brdf;
+				//double pdf = (1 / Math::pi) * pow(indirect*reflected , material->getShininess())/0.25;// pour la pdf cosinus
+				double pdf = 1.;
+
+				result = result + sendRay(rayIndirect, depth + 1, maxDepth, diffuseSamples, specularSamples)*brdf/pdf;
 			}
 
 			result = result * (1 / (1 - alpha));
@@ -707,7 +711,7 @@ namespace Geometry
 						energieString = energieString + std::to_string(int(energie())) + ",";
 						passCounter = passCounter + std::to_string(m_pass) + ",";
 
-						if (m_pass == nextCheck)
+						if (m_pass == nextCheck && false )
 						{
 							energieLastPass = energiePass;
 							energiePass = energie();
