@@ -24,6 +24,7 @@
 #include <iostream>
 #include <Geometry/Texture.h>
 #include <fstream>
+#include <Geometry/BRDFLib.h>
 
 namespace Geometry
 {
@@ -361,10 +362,9 @@ namespace Geometry
 					continue;
 				}
 
-				double G = (normal*light_dir) / (distance + 1);
+				double G = 1. / (distance + 1);
 
-				RGBColor texture = intersection.triangle()->sampleTexture(intersection.uTriangleValue(), intersection.vTriangleValue());
-				RGBColor brdf = material->BRDF(texture, ray.direction(), light_dir, normal);
+				RGBColor brdf = BRDFLib::computeColor(ray, intersection, light_dir);
 
 				//light.computeScore();
 				//Proba Light a revoir
@@ -404,21 +404,17 @@ namespace Geometry
 			double rouletteRusse = Math::RandomDirection::random();
 			double alpha = material->getAbsorption();
 			if (rouletteRusse > alpha) {
-
 				Math::Vector3f normal = intersection.triangle()->sampleNormal(intersection.uTriangleValue(), intersection.vTriangleValue(), ray.source()).normalized();
 				Math::Vector3f reflected = Triangle::reflectionDirection(normal, ray.direction()).normalized();
-
-				Math::Vector3f indirect = Math::RandomDirection(reflected, material->getShininess()).generate().normalized();
-
+				Math::Vector3f indirect;
+				do {
+					indirect = Math::RandomDirection(reflected, material->getShininess()).generate().normalized();
+				} while ( indirect*normal < 0 );
 				Ray rayIndirect(intersection.intersection() + indirect * 0.001, indirect);
 
-				RGBColor texture = intersection.triangle()->sampleTexture(intersection.uTriangleValue(), intersection.vTriangleValue());
+				RGBColor brdf = BRDFLib::computeColor(ray,intersection,indirect);
 
-				RGBColor brdf = material->BRDF(texture, ray.direction(), indirect, normal);
-
-				float cos = normal * indirect;
-
-				result = result + sendRay(rayIndirect, depth + 1, maxDepth, diffuseSamples, specularSamples)*brdf*cos;
+				result = result + sendRay(rayIndirect, depth + 1, maxDepth, diffuseSamples, specularSamples)*brdf;
 			}
 
 			result = result * (1 / (1 - alpha));
@@ -463,9 +459,10 @@ namespace Geometry
 
 					result = phong_direct(ray, intersection,depth);
 
+					/*
 					if (!material->getSpecular().isBlack()) {
 						result = result + material->getSpecular()*sendRay(reflexion, depth + 1, maxDepth, diffuseSamples, specularSamples);
-					}
+					}*/
 
 					result = result + phong_indirect(ray, intersection, depth + 1, maxDepth, diffuseSamples, specularSamples);
 					/*
